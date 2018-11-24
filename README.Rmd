@@ -1,0 +1,66 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+# zap
+
+Experimenting with yet another way to do rowwise operations
+
+## Installation
+
+You can install `zap` from gitub
+
+``` r
+# install.packages("devtools")
+detools::install_github("romainfrancois/zap")
+```
+
+## Example
+
+```{r}
+library(tidyverse)
+library(zap)
+
+tbl <- tibble(cyl = c(4, 6, 8), mpg = c(30, 25, 20)) 
+tbl
+```
+
+Based on this [issue](https://github.com/tidyverse/purrr/issues/280), we want subset of 
+rows of `mtcars` where `cyl` is equal to the `tbl$cyl` and `mpg` is smaller than `tbl$mpg`
+
+There are many ways to do that, on the issue Jenny uses a `mutate + pmap` idiom: 
+
+```{r}
+tbl %>%
+  mutate(x = pmap(
+    .l = list(cyl, mpg),
+    function(cc, mm) filter(mtcars, cyl == cc, mpg < mm))
+  )
+```
+
+`zap` attemps to simplify this by iterating over the columns simultaneously, and exposing 
+them with their name: 
+
+```{r}
+tbl %>% 
+  zap(x = ~filter(mtcars, cyl == !!cyl, mpg < !!mpg) )
+```
+
+In `purrr::` fashion, `zap()` has variants to force the type of output, e.g. `zap_int()`: 
+
+```{r}
+tbl %>% 
+  zap(x = ~filter(mtcars, cyl == !!cyl, mpg < !!mpg) ) %>% 
+  zap_int( n = ~nrow(x))
+```
+

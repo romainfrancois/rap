@@ -1,0 +1,20 @@
+Package: zap
+Title: rowwise operations on a data frame
+Version: 0.0.0.9000
+Authors@R: person("Romain", "François", email = "romain@purrple.cat", role = c("aut", "cre"))
+Description: rowwise operations on a data frame.
+Depends: R (>= 3.5.0)
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Imports: 
+    assertthat,
+    rlang,
+    purrr,
+    tibble
+Suggests: 
+    purrr, 
+    dplyr (>= 0.7.99)
+RoxygenNote: 6.1.1
+Remotes: 
+    tidyverse/dplyr
