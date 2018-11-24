@@ -11,10 +11,8 @@ Imports:
     assertthat,
     rlang,
     purrr,
-    tibble
-Suggests: 
-    purrr, 
-    dplyr (>= 0.7.99)
+    tibble,
+    dplyr
 RoxygenNote: 6.1.1
 Remotes: 
     tidyverse/dplyr

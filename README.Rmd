@@ -14,7 +14,9 @@ knitr::opts_chunk$set(
 ```
 # zap
 
-Experimenting with yet another way to do rowwise operations
+[![Lifecycle Status](https://img.shields.io/badge/lifecycle-experimental-blue.svg)](https://www.tidyverse.org/lifecycle/)
+
+Experimenting with yet another way to do rowwise operations. 
 
 ## Installation
 
@@ -63,4 +65,5 @@ tbl %>%
   zap(x = ~filter(mtcars, cyl == !!cyl, mpg < !!mpg) ) %>% 
   zap_int( n = ~nrow(x))
 ```
+
 

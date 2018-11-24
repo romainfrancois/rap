@@ -1,11 +1,16 @@
-#' @importFrom rlang set_names list2 quos expr new_function eval_tidy missing_arg caller_env is_formula f_rhs
+#' @importFrom rlang set_names list2 quos expr new_function eval_tidy missing_arg caller_env is_formula f_rhs abort
 #' @importFrom assertthat assert_that
 #' @importFrom purrr map map_dbl map_lgl map_int map_chr
 #' @importFrom tibble add_column
+#' @importFrom dplyr is_grouped_df tbl_vars
 zapper_args <- function(.tbl) {
   args <- set_names(
-    map(.tbl, ~expr( (!!.)[[`.::index::.`]]  )),
-    names(.tbl)
+    map(.tbl, ~ if (is.data.frame(.) || is.matrix(.)){
+      expr( (!!.)[[`.::index::.`]])
+    } else {
+      expr( (!!.)[[`.::index::.`]])
+    }),
+    tbl_vars(.tbl)
   )
   list2(`.::index::.` = missing_arg(), !!!args )
 }
@@ -57,6 +62,9 @@ zap <- function(.tbl, ..., .map = map) {
   stopifnot(length(fs) == 1L, is_formula(fs[[1L]]))
   name <- names(fs)[[1L]]
   formula <- fs[[1L]]
+  if (is_grouped_df(.tbl)) {
+    abort("cannot zap a grouping variable")
+  }
 
   body <- expr({
     rlang::eval_tidy(!!(f_rhs(formula)))
@@ -64,9 +72,8 @@ zap <- function(.tbl, ..., .map = map) {
 
   f <- new_function(zapper_args(.tbl), body, env = caller_env())
 
-  add_column(.tbl,
-    !!name := .map(seq_len(nrow(.tbl)), f)
-  )
+  .tbl[[name]] <-  .map(seq_len(nrow(.tbl)), f)
+  .tbl
 }
 
 #' @rdname zap

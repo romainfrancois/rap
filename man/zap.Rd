@@ -57,12 +57,12 @@ tbl <- tibble(cyl = c(4, 6, 8), mpg = c(30, 25, 20))
 #
 # with the mutate + pmap idiom:
 tbl \%>\%
-  mutate( x = pmap(.l = list(cyl, mpg), function(cc, mm) filter(mtcars, cyl == cc, mpg < mm)))
+  mutate(x = pmap(.l = list(cyl, mpg), function(cc, mm) filter(mtcars, cyl == cc, mpg < mm))) \%>\%
+  mutate(n = map_int(x, nrow))
 
 # with zap
 tbl \%>\%
-  zap(x = ~filter(mtcars, cyl == !!cyl, mpg < !!mpg))
-
-
+  zap(x = ~filter(mtcars, cyl == !!cyl, mpg < !!mpg)) \%>\%
+  zap_int(n = ~nrow(x))
 
 }
