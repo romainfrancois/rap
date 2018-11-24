@@ -6,7 +6,19 @@
 [![Lifecycle
 Status](https://img.shields.io/badge/lifecycle-experimental-blue.svg)](https://www.tidyverse.org/lifecycle/)
 
-Experimenting with yet another way to do rowwise operations.
+Experimenting with yet another way to do rowwise operations. It might
+never be a thing, and I’m not yet sure this is `quo()`rrect.
+
+This offers `zap()` as an alternative to some versions of:
+
+  - `rowwise()` + `do()`
+  - `mutate()` + `pmap()`
+  - maybe `purrrlyr` ?
+  - probably other approaches
+
+`zap()` works with a lambda, similar to `purrr::map()` but instead of
+`.x`, `.y`, `..1`, `..2`, … the lambda can use the column names, which
+stand for a single element of the associated vector, in the `[[` sense.
 
 ## Installation
 
