@@ -3,6 +3,7 @@
 export(zap)
 export(zap_chr)
 export(zap_dbl)
+export(zap_dfr)
 export(zap_int)
 export(zap_lgl)
 export(zap_raw)

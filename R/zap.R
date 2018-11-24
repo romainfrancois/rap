@@ -25,6 +25,7 @@ zapper_args <- function(.tbl) {
 #' - a single string for `zap_chr()`
 #' - a single raw for `zap_raw()`
 #' - a single boolean for `zap_lgl()`
+#' - a data frame with one row for `zap_dfr()`
 #'
 #' @param .map the mapping function, eg. [map][purrr::map()] for `zap`, [map_int][purrr::map_int()] for `zap_int`, ...
 #'
@@ -95,3 +96,8 @@ zap_chr <- function(...) zap(..., .map = map_chr)
 #' @rdname zap
 #' @export
 zap_raw <- function(...) zap(..., .map = map_chr)
+
+#' @rdname zap
+#' @export
+zap_dfr <- function(...) zap(..., .map = map_dfr)
+

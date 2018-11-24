@@ -7,6 +7,7 @@
 \alias{zap_int}
 \alias{zap_chr}
 \alias{zap_raw}
+\alias{zap_dfr}
 \title{Map over columns of a data frame simultaneously}
 \usage{
 zap(.tbl, ..., .map = map)
@@ -20,6 +21,8 @@ zap_int(...)
 zap_chr(...)
 
 zap_raw(...)
+
+zap_dfr(...)
 }
 \arguments{
 \item{.tbl}{A data frame}
@@ -30,7 +33,8 @@ zap_raw(...)
 - a single double for `zap_dbl()`
 - a single string for `zap_chr()`
 - a single raw for `zap_raw()`
-- a single boolean for `zap_lgl()`}
+- a single boolean for `zap_lgl()`
+- a data frame with one row for `zap_dfr()`}
 
 \item{.map}{the mapping function, eg. [map][purrr::map()] for `zap`, [map_int][purrr::map_int()] for `zap_int`, ...}
 }
