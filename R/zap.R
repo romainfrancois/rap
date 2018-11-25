@@ -204,7 +204,9 @@ wap_dfr <- function(...) wap(..., .ptype = data.frame())
 #' @rdname zap
 #' @export
 zap <- function(.tbl, ..., .ptype = list()) {
-  name <- names(list(...))[[1L]]
+  names <- names(list(...))
+  assert_that(!is.null(names))
+  name <- names[[1L]]
   if (is_grouped_df(.tbl) && name %in% group_vars(.tbl)) {
     abort("cannot zap a grouping variable")
   }
