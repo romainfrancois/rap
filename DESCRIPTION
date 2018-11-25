@@ -17,6 +17,7 @@ Imports:
     vctrs
 RoxygenNote: 6.1.1
 Remotes: 
-    tidyverse/dplyr
+    tidyverse/dplyr, 
+    r-lib/vctrs
 Suggests: 
     testthat
