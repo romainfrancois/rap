@@ -102,3 +102,90 @@ tbl %>%
 #> 2     6    25 <data.frame [7 × 11]>      7
 #> 3     8    20 <data.frame [14 × 11]>    14
 ```
+
+## wap
+
+`wap()` is the same but just returns the columns, `wap()` is `zap()` +
+`dplyr::pull()`
+
+``` r
+library(dplyr)
+
+starwars <- head(starwars)
+
+# creates a list of length 1 integer vectors
+starwars %>% 
+  wap(~length(films)) 
+#> [[1]]
+#> [1] 5
+#> 
+#> [[2]]
+#> [1] 6
+#> 
+#> [[3]]
+#> [1] 7
+#> 
+#> [[4]]
+#> [1] 4
+#> 
+#> [[5]]
+#> [1] 5
+#> 
+#> [[6]]
+#> [1] 3
+
+# using .ptype or the _int suffix to get a integer vector instead
+starwars %>% 
+  wap(~length(films), .ptype = integer())
+#> [1] 5 6 7 4 5 3
+starwars %>% 
+  wap_int(~length(films))
+#> [1] 5 6 7 4 5 3
+
+# list of data frames
+starwars %>% 
+  wap(~data.frame(vehicles = length(vehicles), starships = length(starships)))
+#> [[1]]
+#>   vehicles starships
+#> 1        2         2
+#> 
+#> [[2]]
+#>   vehicles starships
+#> 1        0         0
+#> 
+#> [[3]]
+#>   vehicles starships
+#> 1        0         0
+#> 
+#> [[4]]
+#>   vehicles starships
+#> 1        0         1
+#> 
+#> [[5]]
+#>   vehicles starships
+#> 1        1         0
+#> 
+#> [[6]]
+#>   vehicles starships
+#> 1        0         0
+
+# using .ptype = data.frame() or _dfr to rbind them
+starwars %>% 
+  wap(~ data.frame(vehicles = length(vehicles), starships = length(starships)), .ptype = data.frame())
+#>   vehicles starships
+#> 1        2         2
+#> 2        0         0
+#> 3        0         0
+#> 4        0         1
+#> 5        1         0
+#> 6        0         0
+starwars %>% 
+  wap_dfr(~data.frame(vehicles = length(vehicles), starships = length(starships)))
+#>   vehicles starships
+#> 1        2         2
+#> 2        0         0
+#> 3        0         0
+#> 4        0         1
+#> 5        1         0
+#> 6        0         0
+```

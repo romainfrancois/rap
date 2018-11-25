@@ -78,4 +78,39 @@ tbl %>%
   zap_int( n = ~nrow(x))
 ```
 
+## wap
+
+`wap()` is the same but just returns the columns, `wap()` is `zap()` + `dplyr::pull()`
+
+```{r}
+library(dplyr)
+
+starwars <- head(starwars)
+
+# creates a list of length 1 integer vectors
+starwars %>% 
+  wap(~length(films)) 
+
+# using .ptype or the _int suffix to get a integer vector instead
+starwars %>% 
+  wap(~length(films), .ptype = integer())
+starwars %>% 
+  wap_int(~length(films))
+
+# list of data frames
+starwars %>% 
+  wap(~data.frame(vehicles = length(vehicles), starships = length(starships)))
+
+# using .ptype = data.frame() or _dfr to rbind them
+starwars %>% 
+  wap(~ data.frame(vehicles = length(vehicles), starships = length(starships)), .ptype = data.frame())
+starwars %>% 
+  wap_dfr(~data.frame(vehicles = length(vehicles), starships = length(starships)))
+```
+
+
+
+
+
+
 
