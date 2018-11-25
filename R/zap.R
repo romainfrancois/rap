@@ -1,14 +1,41 @@
-#' @importFrom rlang set_names list2 quos expr new_function eval_tidy missing_arg caller_env is_formula f_rhs abort
+#' @importFrom rlang set_names list2 quos expr new_function eval_tidy missing_arg caller_env is_formula f_rhs abort is_vector
 #' @importFrom assertthat assert_that
-#' @importFrom purrr map map_dbl map_lgl map_int map_chr
+#' @importFrom purrr map map_dbl map_lgl map_int map_chr map_dfr
 #' @importFrom tibble add_column
 #' @importFrom dplyr is_grouped_df tbl_vars
+#' @importFrom utils globalVariables
+is_bare_vector <- function(x) {
+  is_vector(x) && !is.object(x) && is.null(class(x))
+}
+
+globalVariables(".::index::.")
+
+observation_matrix <- function(.) {
+  expr( (!!.)[`.::index::.`, , drop = FALSE])
+}
+
+observation_data_frame <- function(.) {
+  expr( (!!.)[`.::index::.`, , drop = FALSE])
+}
+
+observation_object <- function(.) {
+  expr( (!!.)[[`.::index::.`]])
+}
+
+observation_bare_vector <- function(.) {
+  expr( .subset2(!!., `.::index::.`))
+}
+
 zapper_args <- function(.tbl) {
   args <- set_names(
-    map(.tbl, ~ if (is.data.frame(.) || is.matrix(.)){
-      expr( (!!.)[[`.::index::.`]])
+    map(.tbl, ~ if (is.data.frame(.) ){
+      observation_data_frame(.)
+    } else if(is.matrix(.)){
+      observation_matrix(.)
+    } else if (is_bare_vector(.)) {
+      observation_bare_vector(.)
     } else {
-      expr( (!!.)[[`.::index::.`]])
+      observation_object(.)
     }),
     tbl_vars(.tbl)
   )
@@ -33,7 +60,7 @@ zapper_args <- function(.tbl) {
 #'
 #' @details
 #'
-#' `zip_*(x = <expr>)` is similar to `mutate(x = pmap_*(., function(<args>) <expr>))` where :
+#' `zap_*(x = <expr>)` is similar to `mutate(x = pmap_*(., function(<args>) <expr>))` where :
 #'
 #' - `<expr>` is an expression using the columns of `.tbl`
 #' - `<args>` is the names of `.tbl` as formal arguments
@@ -73,7 +100,7 @@ zap <- function(.tbl, ..., .map = map) {
 
   f <- new_function(zapper_args(.tbl), body, env = caller_env())
 
-  .tbl[[name]] <-  .map(seq_len(nrow(.tbl)), f)
+  .tbl[[name]] <- .map(seq_len(nrow(.tbl)), f)
   .tbl
 }
 

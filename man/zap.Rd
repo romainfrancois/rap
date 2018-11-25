@@ -45,7 +45,7 @@ zap_dfr(...)
 Map over columns of a data frame simultaneously
 }
 \details{
-`zip_*(x = <expr>)` is similar to `mutate(x = pmap_*(., function(<args>) <expr>))` where :
+`zap_*(x = <expr>)` is similar to `mutate(x = pmap_*(., function(<args>) <expr>))` where :
 
 - `<expr>` is an expression using the columns of `.tbl`
 - `<args>` is the names of `.tbl` as formal arguments

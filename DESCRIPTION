@@ -12,7 +12,8 @@ Imports:
     rlang,
     purrr,
     tibble,
-    dplyr
+    dplyr,
+    utils
 RoxygenNote: 6.1.1
 Remotes: 
     tidyverse/dplyr
