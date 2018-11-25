@@ -13,7 +13,8 @@ Imports:
     purrr,
     tibble,
     dplyr,
-    utils
+    utils,
+    vctrs
 RoxygenNote: 6.1.1
 Remotes: 
     tidyverse/dplyr
