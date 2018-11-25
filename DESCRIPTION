@@ -18,3 +18,5 @@ Imports:
 RoxygenNote: 6.1.1
 Remotes: 
     tidyverse/dplyr
+Suggests: 
+    testthat
