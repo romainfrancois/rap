@@ -227,12 +227,12 @@ zap_int <- function(...) zap(..., .ptype = integer())
 
 #' @rdname zap
 #' @export
-zap_chr <- function(...) zap(..., .map = character())
+zap_chr <- function(...) zap(..., .ptype = character())
 
 #' @rdname zap
 #' @export
-zap_raw <- function(...) zap(..., .map = raw())
+zap_raw <- function(...) zap(..., .ptype = raw())
 
 #' @rdname zap
 #' @export
-zap_dfr <- function(...) zap(..., .map = data.frame())
+zap_dfr <- function(...) zap(..., .ptype = data.frame())
