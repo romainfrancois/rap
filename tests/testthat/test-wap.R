@@ -8,7 +8,10 @@ test_that("wap() creates a list", {
 })
 
 test_that("wap() aborts when ... is not length 1", {
-  expect_error(wap(iris, ~Sepal.Length, ~Sepal.Length))
+  expect_error(
+    wap(iris, ~Sepal.Length, ~Sepal.Length),
+    "`...` should be a single formula"
+  )
 })
 
 test_that("wap() respects .ptype for purrr variants", {

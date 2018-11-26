@@ -10,11 +10,17 @@ test_that("zap() creates a list column", {
 })
 
 test_that("zap() aborts when ... is not length 1", {
-  expect_error(zap(iris, ~Sepal.Length, ~Sepal.Length))
+  expect_error(
+    zap(iris, ~Sepal.Length, ~Sepal.Length),
+    "The formula supplied in `...` must be named."
+  )
 })
 
 test_that("zap() formulas must be named", {
-  expect_error(zap(iris, ~Sepal.Length), "The formula supplied in `...` must be named.")
+  expect_error(
+    zap(iris, ~Sepal.Length),
+    "The formula supplied in `...` must be named."
+  )
 })
 
 

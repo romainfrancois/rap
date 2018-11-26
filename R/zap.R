@@ -163,7 +163,8 @@ wap <- function(.tbl, ..., .ptype = list()) {
   fs <- list(...)
   assert_that(
     length(fs) == 1L,
-    is_formula(fs[[1L]])
+    is_formula(fs[[1L]]),
+    msg  = "`...` should be a single formula"
   )
 
   # derive a function from the lambda
