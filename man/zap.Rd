@@ -3,6 +3,7 @@
 \name{wap}
 \alias{wap}
 \alias{nap}
+\alias{lap}
 \alias{wap_dbl}
 \alias{wap_lgl}
 \alias{wap_int}
@@ -21,6 +22,8 @@
 wap(.tbl, ..., .ptype = list())
 
 nap(.tbl, ...)
+
+lap(.tbl, ..., .ptype = list())
 
 wap_dbl(...)
 

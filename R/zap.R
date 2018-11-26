@@ -208,6 +208,18 @@ nap <- function(.tbl, ...) {
 
 #' @rdname zap
 #' @export
+lap <- function(.tbl, ..., .ptype = list()) {
+  prepare_wap(.tbl, ..., .ptype = .ptype, .named = FALSE)$lambda
+}
+
+#' @export
+print.zap_lamdda <- function(x, ...) {
+  # TODO
+  NextMethod()
+}
+
+#' @rdname zap
+#' @export
 wap_dbl <- function(...) wap(..., .ptype = double())
 
 #' @rdname zap
