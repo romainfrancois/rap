@@ -15,6 +15,7 @@ knitr::opts_chunk$set(
 # zap
 
 [![Lifecycle Status](https://img.shields.io/badge/lifecycle-experimental-blue.svg)](https://www.tidyverse.org/lifecycle/)
+[![Travis build status](https://travis-ci.org/romainfrancois/zap.svg?branch=master)](https://travis-ci.org/romainfrancois/zap)
 
 Experimenting with yet another way to do rowwise operations. It might never be a thing, 
 and I'm not yet sure this is `quo()`rrect. 

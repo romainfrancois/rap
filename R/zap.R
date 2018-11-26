@@ -6,7 +6,7 @@
 #' @importFrom utils globalVariables
 #' @importFrom vctrs vec_size vec_c vec_rbind
 is_bare_vector <- function(x) {
-  is_vector(x) && !is.object(x) && is.null(class(x))
+  is_vector(x) && !is.object(x) && is.null(attr(x, "class"))
 }
 
 globalVariables(".::index::.")
