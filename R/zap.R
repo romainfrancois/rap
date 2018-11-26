@@ -1,4 +1,4 @@
-#' @importFrom rlang set_names list2 quos expr new_function eval_tidy missing_arg caller_env is_formula f_rhs abort is_vector dots_n
+#' @importFrom rlang set_names list2 quos expr new_function eval_tidy missing_arg caller_env is_formula f_rhs abort is_vector dots_n f_env
 #' @importFrom assertthat assert_that
 #' @importFrom purrr map map_dbl map_lgl map_int map_chr map_dfr map_raw
 #' @importFrom tibble add_column
@@ -168,7 +168,7 @@ wap <- function(.tbl, ..., .ptype = list()) {
   body <- expr({
     rlang::eval_tidy(!!(f_rhs(formula)))
   })
-  f <- new_function(zapper_args(.tbl), body, env = caller_env())
+  f <- new_function(zapper_args(.tbl), body, env = f_env(formula))
 
   # get the map function
   .map <- map_for(.ptype)
