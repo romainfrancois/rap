@@ -12,7 +12,7 @@ test_that("zap() creates a list column", {
 test_that("zap() aborts when ... is not length 1", {
   expect_error(
     zap(iris, ~Sepal.Length, ~Sepal.Length),
-    "The formula supplied in `...` must be named."
+    "`...` should be a single formula"
   )
 })
 

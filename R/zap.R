@@ -5,6 +5,7 @@
 #' @importFrom dplyr is_grouped_df tbl_vars group_vars
 #' @importFrom utils globalVariables
 #' @importFrom vctrs vec_size vec_c vec_rbind
+#' @importFrom zeallot %<-%
 is_bare_vector <- function(x) {
   is_vector(x) && !is.object(x) && is.null(attr(x, "class"))
 }
@@ -76,6 +77,40 @@ map_for <- function(.ptype) {
   } else {
     map_for_type(.ptype, vec_c)
   }
+}
+
+prepare_wap <- function(.tbl, ..., .ptype, .named = TRUE) {
+  fs <- list(...)
+  assert_that(
+    length(fs) == 1L,
+    is_formula(fs[[1L]]),
+    msg  = "`...` should be a single formula"
+  )
+  names <- names(fs)
+  if(isTRUE(.named)) {
+    assert_that(
+      !is.null(names),
+      msg = "The formula supplied in `...` must be named."
+    )
+  }
+
+  # derive a function from the lambda
+  formula <- fs[[1L]]
+
+  body <- expr({
+    rlang::eval_tidy(!!(f_rhs(formula)))
+  })
+  lambda <- new_function(zapper_args(.tbl), body, env = f_env(formula))
+  attr(lambda, "class") <- "zap_lamdda"
+
+  # get the map function
+  .map <- map_for(.ptype)
+
+  list(
+    lambda = lambda,
+    mapper = .map,
+    name = if(.named) names[[1L]]
+  )
 }
 
 #' Map over columns of a data frame simultaneously
@@ -160,25 +195,8 @@ map_for <- function(.ptype) {
 #' @rdname zap
 #' @export
 wap <- function(.tbl, ..., .ptype = list()) {
-  fs <- list(...)
-  assert_that(
-    length(fs) == 1L,
-    is_formula(fs[[1L]]),
-    msg  = "`...` should be a single formula"
-  )
-
-  # derive a function from the lambda
-  formula <- fs[[1L]]
-  body <- expr({
-    rlang::eval_tidy(!!(f_rhs(formula)))
-  })
-  f <- new_function(zapper_args(.tbl), body, env = f_env(formula))
-
-  # get the map function
-  .map <- map_for(.ptype)
-
-  # apply the map function
-  .map(seq_len(nrow(.tbl)), f)
+  c(lambda, mapper, .) %<-% prepare_wap(.tbl, ..., .ptype = .ptype, .named = FALSE)
+  mapper(seq_len(nrow(.tbl)), lambda)
 }
 
 #' @rdname zap
@@ -215,17 +233,13 @@ wap_dfr <- function(...) wap(..., .ptype = data.frame())
 #' @rdname zap
 #' @export
 zap <- function(.tbl, ..., .ptype = list()) {
-  names <- names(list(...))
-  assert_that(
-    !is.null(names),
-    msg = "The formula supplied in `...` must be named."
-  )
-  name <- names[[1L]]
+  c(lambda, mapper, name) %<-% prepare_wap(.tbl, ..., .ptype = .ptype, .named = TRUE)
+
   if (is_grouped_df(.tbl) && name %in% group_vars(.tbl)) {
     abort("cannot zap a grouping variable")
   }
 
-  .tbl[[name]] <- wap(.tbl, ..., .ptype = .ptype)
+  .tbl[[name]] <- mapper(seq_len(nrow(.tbl)), lambda)
   .tbl
 }
 
