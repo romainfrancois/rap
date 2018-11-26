@@ -2,6 +2,7 @@
 % Please edit documentation in R/zap.R
 \name{wap}
 \alias{wap}
+\alias{nap}
 \alias{wap_dbl}
 \alias{wap_lgl}
 \alias{wap_int}
@@ -18,6 +19,8 @@
 \title{Map over columns of a data frame simultaneously}
 \usage{
 wap(.tbl, ..., .ptype = list())
+
+nap(.tbl, ...)
 
 wap_dbl(...)
 
@@ -82,7 +85,10 @@ observation of that type, and they are combined eventually with [vctrs::vec_c()]
 \value{
 - `wap()` and its variants return a vector of the appropriate type, e.g. `wap_dbl()` returns
             a numeric vector, `wap_int()` returns an integer vector, ...
+
   - `zap()` and its variants return a data frame with the additional column
+
+  - `nap()` returns *n*othing, and can be used for side effects, similar to [purrr:::pwalk()]
 }
 \description{
 Map over columns of a data frame simultaneously

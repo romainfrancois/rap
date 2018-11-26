@@ -116,7 +116,10 @@ map_for <- function(.ptype) {
 #' @return
 #'   - `wap()` and its variants return a vector of the appropriate type, e.g. `wap_dbl()` returns
 #'             a numeric vector, `wap_int()` returns an integer vector, ...
+#'
 #'   - `zap()` and its variants return a data frame with the additional column
+#'
+#'   - `nap()` returns *n*othing, and can be used for side effects, similar to [purrr:::pwalk()]
 #'
 #' @details
 #'
@@ -175,6 +178,13 @@ wap <- function(.tbl, ..., .ptype = list()) {
 
   # apply the map function
   .map(seq_len(nrow(.tbl)), f)
+}
+
+#' @rdname zap
+#' @export
+nap <- function(.tbl, ...) {
+  wap(.tbl, ...)
+  invisible(.tbl)
 }
 
 #' @rdname zap
