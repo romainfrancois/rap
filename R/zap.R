@@ -215,7 +215,10 @@ wap_dfr <- function(...) wap(..., .ptype = data.frame())
 #' @export
 zap <- function(.tbl, ..., .ptype = list()) {
   names <- names(list(...))
-  assert_that(!is.null(names))
+  assert_that(
+    !is.null(names),
+    msg = "The formula supplied in `...` must be named."
+  )
   name <- names[[1L]]
   if (is_grouped_df(.tbl) && name %in% group_vars(.tbl)) {
     abort("cannot zap a grouping variable")
