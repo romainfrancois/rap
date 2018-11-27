@@ -8,15 +8,15 @@
 #'
 #' @param y another tibble
 #'
-#' @param ... a single predicate formula.
+#' @param ... named predicate formulas
 #'
-#' The rhs of the formula is used y [dplyr::filter()] on `y` for each row of `x`.
+#' The rhs of the formulas is used y [dplyr::filter()] on `y` for each row of `x`.
 #'
 #'   - Literal column names refer to columns of `y`. Alternatively you can use `.data$`.
 #'
 #'   - To use the current value for a column of `x` you can use unquoting, e.g. `!!cyl`
 #'
-#' @return a tibble that contains all columns and rows of `x`, plus an additional list column:
+#' @return a tibble that contains all columns and rows of `x`, plus an additional list column per formula:
 #'   - its name is given by the name of the formula
 #'   - each element of the column is a tibble
 #'   - each of the tibbles is a subset of `y` according to the rhs of the formula
@@ -37,15 +37,36 @@
 #' tbl %>%
 #'   rap(data = ~filter(mtcars, cyl == !!cyl & mpg < !!mpg))
 #'
+#' # multiple zest
+#' tbl %>%
+#'   zest_join(mtcars,
+#'     one = ~cyl == !!cyl & mpg < !!mpg,
+#'     two = ~cyl <  !!cyl & mpg > !!mpg
+#'   )
+#'
 #' @export
 zest_join <- function(x, y, ...) {
-  c(lambda, mapper, name) %<-% prepare_wap(x, ..., .ptype = list(), .named = TRUE)
+  out <- x
 
-  predicate <- body(lambda)[[2]][[2]]
-  body(lambda)[[2]][[2]] <- call('filter', sym(".::rhs::."), predicate)
+  formulas <- list(...)
+  assert_that(
+    !is.null(names(formulas)),
+    all(map_lgl(formulas, is_formula)),
+    msg = "`...` should be a named list of formulas"
+  )
 
-  environment(lambda) <- env(`.::rhs::.` = y, filter = dplyr::filter, environment(lambda))
+  iwalk(formulas, ~{
+    c(lambda, mapper, .) %<-% prepare_wap(x, .x, check = FALSE)
 
-  x[[name]] <- mapper(seq_len(nrow(x)), lambda)
-  x
+    if (.y %in% tbl_vars(x)) {
+      abort("cannot zest_join() a column with the same name as a column of x")
+    }
+
+    predicate <- body(lambda)[[2]][[2]]
+    body(lambda)[[2]][[2]] <- call('filter', sym(".::rhs::."), predicate)
+    environment(lambda) <- env(`.::rhs::.` = y, filter = dplyr::filter, environment(lambda))
+
+    out[[.y]] <<- mapper(seq_len(nrow(x)), lambda)
+  })
+  out
 }

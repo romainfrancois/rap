@@ -1,6 +1,6 @@
-#' @importFrom rlang set_names list2 quos expr new_function eval_tidy missing_arg caller_env is_formula f_rhs abort is_vector dots_n f_env env sym
+#' @importFrom rlang set_names list2 quos expr new_function eval_tidy missing_arg caller_env is_formula f_rhs abort is_vector dots_n f_env env sym f_lhs
 #' @importFrom assertthat assert_that
-#' @importFrom purrr map map_dbl map_lgl map_int map_chr map_dfr map_raw
+#' @importFrom purrr map map_dbl map_lgl map_int map_chr map_dfr map_raw iwalk
 #' @importFrom tibble add_column
 #' @importFrom dplyr is_grouped_df tbl_vars group_vars
 #' @importFrom utils globalVariables
@@ -83,87 +83,68 @@ map_for <- function(.ptype) {
   }
 }
 
-prepare_wap <- function(.tbl, ..., .ptype, .named = TRUE) {
-  fs <- list(...)
-  assert_that(
-    length(fs) == 1L,
-    is_formula(fs[[1L]]),
-    msg  = "`...` should be a single formula"
-  )
-  names <- names(fs)
-  if(isTRUE(.named)) {
-    assert_that(
-      !is.null(names),
-      msg = "The formula supplied in `...` must be named."
+prepare_wap <- function(.tbl, .f, check = TRUE) {
+  if (check) {
+      assert_that(
+      is_formula(.f),
+      msg  = ".f should be formula"
     )
   }
+  lhs <- f_lhs(.f)
 
-  # derive a function from the lambda
-  formula <- fs[[1L]]
+  # the type
+  .ptype <- if (is.null(lhs)) list() else eval_tidy(lhs, env = f_env(.f))
 
+  # the lambda
   body <- expr({
-    rlang::eval_tidy(!!(f_rhs(formula)))
+    rlang::eval_tidy(!!(f_rhs(.f)))
   })
-  lambda <- new_function(rapper_args(.tbl), body, env = f_env(formula))
+  lambda <- new_function(rapper_args(.tbl), body, env = f_env(.f))
   attr(lambda, "class") <- "rap_lamdda"
 
-  # get the map function
+  # the mapper
   .map <- map_for(.ptype)
 
   list(
     lambda = lambda,
     mapper = .map,
-    name = if(.named) names[[1L]]
+    type   = .ptype
   )
 }
 
 #' Map over columns of a data frame simultaneously
 #'
 #' @param .tbl A data frame
+#' @param .f a single formula
+#' @param ... named formulas
 #'
-#' @param ... A single named formula.
+#'  The *lhs* of each formula indicates the type, in the [vctrs::vec_c()] sense.
 #'
-#'  The rhs of the formula uses columns of `.tbl`, and each stands for a single
+#'  - empty or `list()`: no check is performed on the results of
+#'  the rhs expressionand a list is returned.
+#'
+#'  - `data.frame()`:  to indicate that the rhs should evaluate
+#'  to a data frame of 1 row. The data frames don't need to be of a specific types
+#'  and are are combined with [vctrs::vec_rbind()].
+#'
+#'  - A data frame of a specific type, e.g. `data.frame(x = integer(), y = double())`
+#'  The rhs should evaluate to a data frame of that type with 1 row.
+#'
+#'  - Any other ptype that makes sense for [vctrs::vec_c()]. Each result must
+#'  validate `vctrs::vec_size(.) == 1L` and are combined with
+#'  `vctrs::vec_c(!!!, .ptype = .ptype)`
+#'
+#'  The rhs of each formula uses columns of `.tbl`, and each stands for a single
 #'  observation.
 #'
-#'  Evaluating the rhs of the formula should return a single observation of
-#'  a type identified by `.ptype`. For example if `.ptype` is `integer()` the
-#'  expression should evaluate to a single integer ...
-#'
-#' @param .ptype output type. The default `list()` uses [purrr::map()] to
-#' iterate. No checks are performed on the results.
-#'
-#' Can be one of these special cases that take advantage of functions from `purrr`:
-#'
-#' - `integer()` : the iteration is performed by [purrr::map_int()]
-#' - `double()` : the iteration is performed by [purrr::map_dbl()]
-#' - `raw()` : the iteration is performed by [purrr::map_raw()]
-#' - `logical()` : the iteration is performed by [purrr::map_lgl()]
-#' - `character()` : the iteration is performed by [purrr::map_chr()]
-#'
-#' Can be `data.frame()`. Each result of the formula must be a data frame of
-#' one observation. The data frames are combined with [vctrs::vec_rbind()].
-#'
-#' Can be a data frame of a specific type, e.g. `data.frame(x = integer(), y = double())`.
-#' In that case the data frames must also be of one observation, but also must
-#' be of the specified type. They are aggregated with [vctrs::vec_rbind()], passing along
-#' the `.ptype`.
-#'
-#' Finally, for any other value of `.ptype`, the expression should give one
-#' observation of that type, and they are combined eventually with [vctrs::vec_c()].
-#'
 #' @return
-#'   - `wap()` and its variants return a vector of the appropriate type, e.g. `wap_dbl()` returns
-#'             a numeric vector, `wap_int()` returns an integer vector, ...
-#'
-#'   - `rap()` and its variants return a data frame with the additional column
+#'   - `wap()` returns a vector of the type specified by the lhs of the formula.
+#'             The vector validates `vec_size() == nrow(.tbl)`. This is similar
+#'             to [purrr::pmap()]
 #'
 #'   - `nap()` returns *n*othing, and can be used for side effects, similar to [purrr:::pwalk()]
 #'
-#' @details
-#'
-#' Suffixed versions of `wap()` and `rap()` are conveniences set the `.ptype`, e.g.
-#' `wap_int(...)` is `wap(..., .ptype = integer())`, `rap_lgl(...)` is `rap(..., .ptype = logical())`
+#'   - `rap()` adds a column to `.tbl` per formula in `...`
 #'
 #' @examples
 #'
@@ -173,47 +154,49 @@ prepare_wap <- function(.tbl, ..., .ptype, .named = TRUE) {
 #'
 #' tbl <- tibble(cyl = c(4, 6, 8), mpg = c(30, 25, 20))
 #'
-#' # inspired from https://github.com/tidyverse/purrr/issues/280#issuecomment-270844528
-#' # wap returns a list
+#' # returns a list of 3 elements
 #' tbl %>%
 #'   wap(~ filter(mtcars, cyl == !!cyl, mpg < !!mpg))
 #'
-#' # can use the .ptype to indicate the type of result
-#' # in the vctrs sense:
+#' # same
 #' tbl %>%
-#'   wap(~ nrow(filter(mtcars, cyl == !!cyl, mpg < !!mpg)), .ptype = integer())
+#'   wap(list() ~ filter(mtcars, cyl == !!cyl, mpg < !!mpg))
 #'
-#' # or alternatively use the suffixed versions, à la purrr:
+#' # can specify the output type with the formula lhs
 #' tbl %>%
-#'   wap_int(~ nrow(filter(mtcars, cyl == !!cyl, mpg < !!mpg)))
+#'   wap(integer() ~ nrow(filter(mtcars, cyl == !!cyl, mpg < !!mpg)))
 #'
-#' # wap(.ptype = data.frame()) or wap_dfr row binds data frames
-#' tbl %>%
-#'   wap_dfr(~ data.frame(a = cyl * 2, b = mpg + 1))
+#' # to make data frames
+#' starwars %>%
+#'   wap( data.frame() ~
+#'     data.frame(species = length(species), films = length(films))
+#'   )
 #'
-#' # rap adds a column to a data frame
+#' # rap adds columns
 #' tbl %>%
-#'   rap(x = ~filter(mtcars, cyl == !!cyl, mpg < !!mpg)) %>%
-#'   rap(n = ~nrow(x), .ptype = integer())
+#'   rap(
+#'      x =           ~ filter(mtcars, cyl == !!cyl, mpg < !!mpg),
+#'      n = integer() ~ nrow(x)
+#'   )
 #'
 #' @rdname rap
 #' @export
-wap <- function(.tbl, ..., .ptype = list()) {
-  c(lambda, mapper, .) %<-% prepare_wap(.tbl, ..., .ptype = .ptype, .named = FALSE)
+wap <- function(.tbl, .f) {
+  c(lambda, mapper, .) %<-% prepare_wap(.tbl, .f = .f, check = TRUE)
   mapper(seq_len(nrow(.tbl)), lambda)
 }
 
 #' @rdname rap
 #' @export
-nap <- function(.tbl, ...) {
-  wap(.tbl, ...)
+nap <- function(.tbl, .f) {
+  wap(.tbl, .f)
   invisible(.tbl)
 }
 
 #' @rdname rap
 #' @export
-lap <- function(.tbl, ..., .ptype = list()) {
-  prepare_wap(.tbl, ..., .ptype = .ptype, .named = FALSE)$lambda
+lap <- function(.tbl, .f) {
+  prepare_wap(.tbl, .f, check = TRUE)$lambda
 }
 
 #' @export
@@ -224,61 +207,23 @@ print.rap_lamdda <- function(x, ...) {
 
 #' @rdname rap
 #' @export
-wap_dbl <- function(...) wap(..., .ptype = double())
+rap <- function(.tbl, ...) {
 
-#' @rdname rap
-#' @export
-wap_lgl <- function(...) wap(..., .ptype = logical())
+  formulas <- list(...)
+  assert_that(
+    !is.null(names(formulas)),
+    all(map_lgl(formulas, is_formula)),
+    msg = "`...` should be a named list of formulas"
+  )
 
-#' @rdname rap
-#' @export
-wap_int <- function(...) wap(..., .ptype = integer())
+  iwalk(formulas, ~{
+    c(lambda, mapper, .) %<-% prepare_wap(.tbl, .x, check = FALSE)
 
-#' @rdname rap
-#' @export
-wap_chr <- function(...) wap(..., .ptype = character())
+    if (is_grouped_df(.tbl) && .y %in% group_vars(.tbl)) {
+      abort("cannot rap() a grouping variable")
+    }
 
-#' @rdname rap
-#' @export
-wap_raw <- function(...) wap(..., .ptype = raw())
-
-#' @rdname rap
-#' @export
-wap_dfr <- function(...) wap(..., .ptype = data.frame())
-
-#' @rdname rap
-#' @export
-rap <- function(.tbl, ..., .ptype = list()) {
-  c(lambda, mapper, name) %<-% prepare_wap(.tbl, ..., .ptype = .ptype, .named = TRUE)
-
-  if (is_grouped_df(.tbl) && name %in% group_vars(.tbl)) {
-    abort("cannot rap() a grouping variable")
-  }
-
-  .tbl[[name]] <- mapper(seq_len(nrow(.tbl)), lambda)
+    .tbl[[.y]] <<- mapper(seq_len(nrow(.tbl)), lambda)
+  })
   .tbl
 }
-
-#' @rdname rap
-#' @export
-rap_dbl <- function(...) rap(..., .ptype = double())
-
-#' @rdname rap
-#' @export
-rap_lgl <- function(...) rap(..., .ptype = logical())
-
-#' @rdname rap
-#' @export
-rap_int <- function(...) rap(..., .ptype = integer())
-
-#' @rdname rap
-#' @export
-rap_chr <- function(...) rap(..., .ptype = character())
-
-#' @rdname rap
-#' @export
-rap_raw <- function(...) rap(..., .ptype = raw())
-
-#' @rdname rap
-#' @export
-rap_dfr <- function(...) rap(..., .ptype = data.frame())

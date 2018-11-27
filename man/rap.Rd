@@ -4,101 +4,54 @@
 \alias{wap}
 \alias{nap}
 \alias{lap}
-\alias{wap_dbl}
-\alias{wap_lgl}
-\alias{wap_int}
-\alias{wap_chr}
-\alias{wap_raw}
-\alias{wap_dfr}
 \alias{rap}
-\alias{rap_dbl}
-\alias{rap_lgl}
-\alias{rap_int}
-\alias{rap_chr}
-\alias{rap_raw}
-\alias{rap_dfr}
 \title{Map over columns of a data frame simultaneously}
 \usage{
-wap(.tbl, ..., .ptype = list())
+wap(.tbl, .f)
 
-nap(.tbl, ...)
+nap(.tbl, .f)
 
-lap(.tbl, ..., .ptype = list())
+lap(.tbl, .f)
 
-wap_dbl(...)
-
-wap_lgl(...)
-
-wap_int(...)
-
-wap_chr(...)
-
-wap_raw(...)
-
-wap_dfr(...)
-
-rap(.tbl, ..., .ptype = list())
-
-rap_dbl(...)
-
-rap_lgl(...)
-
-rap_int(...)
-
-rap_chr(...)
-
-rap_raw(...)
-
-rap_dfr(...)
+rap(.tbl, ...)
 }
 \arguments{
 \item{.tbl}{A data frame}
 
-\item{...}{A single named formula.
+\item{.f}{a single formula}
 
- The rhs of the formula uses columns of `.tbl`, and each stands for a single
- observation.
+\item{...}{named formulas
 
- Evaluating the rhs of the formula should return a single observation of
- a type identified by `.ptype`. For example if `.ptype` is `integer()` the
- expression should evaluate to a single integer ...}
+ The *lhs* of each formula indicates the type, in the [vctrs::vec_c()] sense.
 
-\item{.ptype}{output type. The default `list()` uses [purrr::map()] to
-iterate. No checks are performed on the results.
+ - empty or `list()`: no check is performed on the results of
+ the rhs expressionand a list is returned.
 
-Can be one of these special cases that take advantage of functions from `purrr`:
+ - `data.frame()`:  to indicate that the rhs should evaluate
+ to a data frame of 1 row. The data frames don't need to be of a specific types
+ and are are combined with [vctrs::vec_rbind()].
 
-- `integer()` : the iteration is performed by [purrr::map_int()]
-- `double()` : the iteration is performed by [purrr::map_dbl()]
-- `raw()` : the iteration is performed by [purrr::map_raw()]
-- `logical()` : the iteration is performed by [purrr::map_lgl()]
-- `character()` : the iteration is performed by [purrr::map_chr()]
+ - A data frame of a specific type, e.g. `data.frame(x = integer(), y = double())`
+ The rhs should evaluate to a data frame of that type with 1 row.
 
-Can be `data.frame()`. Each result of the formula must be a data frame of
-one observation. The data frames are combined with [vctrs::vec_rbind()].
+ - Any other ptype that makes sense for [vctrs::vec_c()]. Each result must
+ validate `vctrs::vec_size(.) == 1L` and are combined with
+ `vctrs::vec_c(!!!, .ptype = .ptype)`
 
-Can be a data frame of a specific type, e.g. `data.frame(x = integer(), y = double())`.
-In that case the data frames must also be of one observation, but also must
-be of the specified type. They are aggregated with [vctrs::vec_rbind()], passing along
-the `.ptype`.
-
-Finally, for any other value of `.ptype`, the expression should give one
-observation of that type, and they are combined eventually with [vctrs::vec_c()].}
+ The rhs of each formula uses columns of `.tbl`, and each stands for a single
+ observation.}
 }
 \value{
-- `wap()` and its variants return a vector of the appropriate type, e.g. `wap_dbl()` returns
-            a numeric vector, `wap_int()` returns an integer vector, ...
-
-  - `rap()` and its variants return a data frame with the additional column
+- `wap()` returns a vector of the type specified by the lhs of the formula.
+            The vector validates `vec_size() == nrow(.tbl)`. This is similar
+            to [purrr::pmap()]
 
   - `nap()` returns *n*othing, and can be used for side effects, similar to [purrr:::pwalk()]
+
+  - `rap()` adds a column to `.tbl` per formula in `...`
 }
 \description{
 Map over columns of a data frame simultaneously
-}
-\details{
-Suffixed versions of `wap()` and `rap()` are conveniences set the `.ptype`, e.g.
-`wap_int(...)` is `wap(..., .ptype = integer())`, `rap_lgl(...)` is `rap(..., .ptype = logical())`
 }
 \examples{
 
@@ -108,27 +61,29 @@ library(tibble)
 
 tbl <- tibble(cyl = c(4, 6, 8), mpg = c(30, 25, 20))
 
-# inspired from https://github.com/tidyverse/purrr/issues/280#issuecomment-270844528
-# wap returns a list
+# returns a list of 3 elements
 tbl \%>\%
   wap(~ filter(mtcars, cyl == !!cyl, mpg < !!mpg))
 
-# can use the .ptype to indicate the type of result
-# in the vctrs sense:
+# same
 tbl \%>\%
-  wap(~ nrow(filter(mtcars, cyl == !!cyl, mpg < !!mpg)), .ptype = integer())
+  wap(list() ~ filter(mtcars, cyl == !!cyl, mpg < !!mpg))
 
-# or alternatively use the suffixed versions, à la purrr:
+# can specify the output type with the formula lhs
 tbl \%>\%
-  wap_int(~ nrow(filter(mtcars, cyl == !!cyl, mpg < !!mpg)))
+  wap(integer() ~ nrow(filter(mtcars, cyl == !!cyl, mpg < !!mpg)))
 
-# wap(.ptype = data.frame()) or wap_dfr row binds data frames
-tbl \%>\%
-  wap_dfr(~ data.frame(a = cyl * 2, b = mpg + 1))
+# to make data frames
+starwars \%>\%
+  wap( data.frame() ~
+    data.frame(species = length(species), films = length(films))
+  )
 
-# rap adds a column to a data frame
+# rap adds columns
 tbl \%>\%
-  rap(x = ~filter(mtcars, cyl == !!cyl, mpg < !!mpg)) \%>\%
-  rap(n = ~nrow(x), .ptype = integer())
+  rap(
+     x =           ~ filter(mtcars, cyl == !!cyl, mpg < !!mpg),
+     n = integer() ~ nrow(x)
+  )
 
 }

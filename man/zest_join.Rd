@@ -11,16 +11,16 @@ zest_join(x, y, ...)
 
 \item{y}{another tibble}
 
-\item{...}{a single predicate formula.
+\item{...}{named predicate formulas
 
-The rhs of the formula is used y [dplyr::filter()] on `y` for each row of `x`.
+The rhs of the formulas is used y [dplyr::filter()] on `y` for each row of `x`.
 
   - Literal column names refer to columns of `y`. Alternatively you can use `.data$`.
 
   - To use the current value for a column of `x` you can use unquoting, e.g. `!!cyl`}
 }
 \value{
-a tibble that contains all columns and rows of `x`, plus an additional list column:
+a tibble that contains all columns and rows of `x`, plus an additional list column per formula:
   - its name is given by the name of the formula
   - each element of the column is a tibble
   - each of the tibbles is a subset of `y` according to the rhs of the formula
@@ -44,5 +44,12 @@ tbl \%>\%
 # similar to
 tbl \%>\%
   rap(data = ~filter(mtcars, cyl == !!cyl & mpg < !!mpg))
+
+# multiple zest
+tbl \%>\%
+  zest_join(mtcars,
+    one = ~cyl == !!cyl & mpg < !!mpg,
+    two = ~cyl <  !!cyl & mpg > !!mpg
+  )
 
 }

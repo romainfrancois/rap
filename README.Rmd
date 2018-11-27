@@ -39,10 +39,9 @@ This offers `rap()` as an alternative to some versions of:
  - maybe `purrrlyr` ?
  - probably other approaches
 
-`rap()` works with a lambda, similar to `purrr::map()` but instead of `.x`, `.y`, `..1`, `..2`, ...
-the lambda can use the column names, which stand for a single element of the associated vector, in the 
-`[[` sense. 
-
+`rap()` works with lambdas supplied as formulas, similar to `purrr::map()` 
+but instead of `.x`, `.y`, `..1`, `..2`, ...the lambda can use the column names, 
+which stand for a single element of the associated vector, in the `[[` sense. 
 
 ## rap
 
@@ -52,40 +51,37 @@ library(rap)
 
 tbl <- tibble(cyl = c(4, 6, 8), mpg = c(30, 25, 20)) 
 tbl
-```
 
-Based on this [issue](https://github.com/tidyverse/purrr/issues/280), we want subset of 
-rows of `mtcars` where `cyl` is equal to the `tbl$cyl` and `mpg` is smaller than `tbl$mpg`
-
-There are many ways to do that, on the issue Jenny uses a `mutate + pmap` idiom: 
-
-```{r}
-tbl %>%
-  mutate(x = pmap(
-    .l = list(cyl, mpg),
-    function(cc, mm) filter(mtcars, cyl == cc, mpg < mm))
-  )
-```
-
-`rap` attempts to simplify this by iterating over the columns simultaneously, and exposing 
-them with their name: 
-
-```{r}
 tbl %>% 
   rap(x = ~filter(mtcars, cyl == !!cyl, mpg < !!mpg) )
 ```
 
-In `purrr::` fashion, `rap()` has variants to force the type of output, e.g. `rap_int()`: 
+If the lhs of the formula is empty, `rap()` adds a list column. Otherwise the lhs 
+can be used to specify the type: 
 
 ```{r}
 tbl %>% 
-  rap(x = ~filter(mtcars, cyl == !!cyl, mpg < !!mpg) ) %>% 
-  rap_int( n = ~nrow(x))
+  rap(
+    x =           ~ filter(mtcars, cyl == !!cyl, mpg < !!mpg), 
+    n = integer() ~ nrow(x)
+  )
+```
+
+this example is based on this [issue](https://github.com/tidyverse/purrr/issues/280), 
+which has equivalent with `pmap`: 
+
+```{r}
+tbl %>%
+  mutate(
+    x = pmap(
+      .l = list(cyl, mpg),
+      function(cc, mm) filter(mtcars, cyl == cc, mpg < mm)
+    ), 
+    n = map_int(x, nrow)
+  )
 ```
 
 ## wap
-
-`wap()` is the same but just returns the columns, `wap()` is `rap()` + `dplyr::pull()`
 
 ```{r}
 library(dplyr)
@@ -93,24 +89,21 @@ library(dplyr)
 starwars <- head(starwars)
 
 # creates a list of length 1 integer vectors
+# because type not specified
 starwars %>% 
   wap(~length(films)) 
 
-# using .ptype or the _int suffix to get a integer vector instead
+# using the lhs to specify the type
 starwars %>% 
-  wap(~length(films), .ptype = integer())
-starwars %>% 
-  wap_int(~length(films))
+  wap(integer() ~ length(films))
 
 # list of data frames
 starwars %>% 
-  wap(~data.frame(vehicles = length(vehicles), starships = length(starships)))
+  wap(~ data.frame(vehicles = length(vehicles), starships = length(starships)))
 
-# using .ptype = data.frame() or _dfr to rbind them
+# Specify type as data.frame() row binds them
 starwars %>% 
-  wap(~ data.frame(vehicles = length(vehicles), starships = length(starships)), .ptype = data.frame())
-starwars %>% 
-  wap_dfr(~data.frame(vehicles = length(vehicles), starships = length(starships)))
+  wap( data.frame() ~ data.frame(vehicles = length(vehicles), starships = length(starships)))
 ```
 
 
