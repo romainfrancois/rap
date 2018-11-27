@@ -15,7 +15,8 @@ Imports:
     dplyr,
     utils,
     vctrs,
-    zeallot
+    zeallot,
+    magrittr
 RoxygenNote: 6.1.1
 Remotes: 
     tidyverse/dplyr, 

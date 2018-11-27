@@ -1,4 +1,4 @@
-#' @importFrom rlang set_names list2 quos expr new_function eval_tidy missing_arg caller_env is_formula f_rhs abort is_vector dots_n f_env
+#' @importFrom rlang set_names list2 quos expr new_function eval_tidy missing_arg caller_env is_formula f_rhs abort is_vector dots_n f_env env sym
 #' @importFrom assertthat assert_that
 #' @importFrom purrr map map_dbl map_lgl map_int map_chr map_dfr map_raw
 #' @importFrom tibble add_column
@@ -6,11 +6,15 @@
 #' @importFrom utils globalVariables
 #' @importFrom vctrs vec_size vec_c vec_rbind
 #' @importFrom zeallot %<-%
+#' @importFrom magrittr %>%
 is_bare_vector <- function(x) {
   is_vector(x) && !is.object(x) && is.null(attr(x, "class"))
 }
 
-globalVariables(".::index::.")
+#' @export
+magrittr::`%>%`
+
+globalVariables(c(".::index::.", ".::rhs::.", "lambda", "mapper", "name", "."))
 
 observation_matrix <- function(.) {
   expr( (!!.)[`.::index::.`, , drop = FALSE])
