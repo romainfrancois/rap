@@ -114,8 +114,20 @@ starwars %>%
 ```
 
 
+## zest_join
 
+`r emo::ji("lemon")` `zest_join()` is similar to `dplyr::nest_join()` but 
+you control what goes in the nested column. `Z` is `N` but `r emo::ji("arrow_heading_down")`. 
 
+```{r}
+tbl <- tibble(cyl = c(4, 6, 8), mpg = c(30, 25, 20)) 
+tbl %>%
+  zest_join(mtcars, data = ~cyl == !!cyl & mpg < !!mpg)
+```
+
+In the rhs of the formula : 
+ - `cyl` and `mpg` refer to columns of `mtcars`
+ - `!!cyl` and `!!mpg` refer to the current value from `tbl` 
 
 
 

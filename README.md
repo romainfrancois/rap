@@ -194,3 +194,23 @@ starwars %>%
 #> 5        1         0
 #> 6        0         0
 ```
+
+## zest\_join
+
+🍋 `zest_join()` is similar to `dplyr::nest_join()` but you control what
+goes in the nested column. `Z` is `N` but ⤵️.
+
+``` r
+tbl <- tibble(cyl = c(4, 6, 8), mpg = c(30, 25, 20)) 
+tbl %>%
+  zest_join(mtcars, data = ~cyl == !!cyl & mpg < !!mpg)
+#> # A tibble: 3 x 3
+#>     cyl   mpg data                  
+#>   <dbl> <dbl> <list>                
+#> 1     4    30 <data.frame [7 × 11]> 
+#> 2     6    25 <data.frame [7 × 11]> 
+#> 3     8    20 <data.frame [14 × 11]>
+```
+
+In the rhs of the formula : - `cyl` and `mpg` refer to columns of
+`mtcars` - `!!cyl` and `!!mpg` refer to the current value from `tbl`
