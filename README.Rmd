@@ -126,8 +126,9 @@ tbl %>%
 ```
 
 In the rhs of the formula : 
- - `cyl` and `mpg` refer to columns of `mtcars`
- - `!!cyl` and `!!mpg` refer to the current value from `tbl` 
+
+  - `cyl` and `mpg` refer to columns of `mtcars`
+  - `!!cyl` and `!!mpg` refer to the current value from `tbl` 
 
 
 

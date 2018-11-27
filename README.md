@@ -212,5 +212,7 @@ tbl %>%
 #> 3     8    20 <data.frame [14 × 11]>
 ```
 
-In the rhs of the formula : - `cyl` and `mpg` refer to columns of
-`mtcars` - `!!cyl` and `!!mpg` refer to the current value from `tbl`
+In the rhs of the formula :
+
+  - `cyl` and `mpg` refer to columns of `mtcars`
+  - `!!cyl` and `!!mpg` refer to the current value from `tbl`
