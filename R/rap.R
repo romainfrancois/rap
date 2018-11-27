@@ -32,7 +32,7 @@ observation_bare_vector <- function(.) {
   expr( .subset2(!!., `.::index::.`))
 }
 
-zapper_args <- function(.tbl) {
+rapper_args <- function(.tbl) {
   args <- set_names(
     map(.tbl, ~ if (is.data.frame(.) ){
       observation_data_frame(.)
@@ -104,8 +104,8 @@ prepare_wap <- function(.tbl, ..., .ptype, .named = TRUE) {
   body <- expr({
     rlang::eval_tidy(!!(f_rhs(formula)))
   })
-  lambda <- new_function(zapper_args(.tbl), body, env = f_env(formula))
-  attr(lambda, "class") <- "zap_lamdda"
+  lambda <- new_function(rapper_args(.tbl), body, env = f_env(formula))
+  attr(lambda, "class") <- "rap_lamdda"
 
   # get the map function
   .map <- map_for(.ptype)
@@ -156,14 +156,14 @@ prepare_wap <- function(.tbl, ..., .ptype, .named = TRUE) {
 #'   - `wap()` and its variants return a vector of the appropriate type, e.g. `wap_dbl()` returns
 #'             a numeric vector, `wap_int()` returns an integer vector, ...
 #'
-#'   - `zap()` and its variants return a data frame with the additional column
+#'   - `rap()` and its variants return a data frame with the additional column
 #'
 #'   - `nap()` returns *n*othing, and can be used for side effects, similar to [purrr:::pwalk()]
 #'
 #' @details
 #'
-#' Suffixed versions of `wap()` and `zap()` are conveniences set the `.ptype`, e.g.
-#' `wap_int(...)` is `wap(..., .ptype = integer())`, `zap_lgl(...)` is `zap(..., .ptype = logical())`
+#' Suffixed versions of `wap()` and `rap()` are conveniences set the `.ptype`, e.g.
+#' `wap_int(...)` is `wap(..., .ptype = integer())`, `rap_lgl(...)` is `rap(..., .ptype = logical())`
 #'
 #' @examples
 #'
@@ -191,94 +191,94 @@ prepare_wap <- function(.tbl, ..., .ptype, .named = TRUE) {
 #' tbl %>%
 #'   wap_dfr(~ data.frame(a = cyl * 2, b = mpg + 1))
 #'
-#' # zap adds a column to a data frame
+#' # rap adds a column to a data frame
 #' tbl %>%
-#'   zap(x = ~filter(mtcars, cyl == !!cyl, mpg < !!mpg)) %>%
-#'   zap(n = ~nrow(x), .ptype = integer())
+#'   rap(x = ~filter(mtcars, cyl == !!cyl, mpg < !!mpg)) %>%
+#'   rap(n = ~nrow(x), .ptype = integer())
 #'
-#' @rdname zap
+#' @rdname rap
 #' @export
 wap <- function(.tbl, ..., .ptype = list()) {
   c(lambda, mapper, .) %<-% prepare_wap(.tbl, ..., .ptype = .ptype, .named = FALSE)
   mapper(seq_len(nrow(.tbl)), lambda)
 }
 
-#' @rdname zap
+#' @rdname rap
 #' @export
 nap <- function(.tbl, ...) {
   wap(.tbl, ...)
   invisible(.tbl)
 }
 
-#' @rdname zap
+#' @rdname rap
 #' @export
 lap <- function(.tbl, ..., .ptype = list()) {
   prepare_wap(.tbl, ..., .ptype = .ptype, .named = FALSE)$lambda
 }
 
 #' @export
-print.zap_lamdda <- function(x, ...) {
+print.rap_lamdda <- function(x, ...) {
   # TODO
   NextMethod()
 }
 
-#' @rdname zap
+#' @rdname rap
 #' @export
 wap_dbl <- function(...) wap(..., .ptype = double())
 
-#' @rdname zap
+#' @rdname rap
 #' @export
 wap_lgl <- function(...) wap(..., .ptype = logical())
 
-#' @rdname zap
+#' @rdname rap
 #' @export
 wap_int <- function(...) wap(..., .ptype = integer())
 
-#' @rdname zap
+#' @rdname rap
 #' @export
 wap_chr <- function(...) wap(..., .ptype = character())
 
-#' @rdname zap
+#' @rdname rap
 #' @export
 wap_raw <- function(...) wap(..., .ptype = raw())
 
-#' @rdname zap
+#' @rdname rap
 #' @export
 wap_dfr <- function(...) wap(..., .ptype = data.frame())
 
-#' @rdname zap
+#' @rdname rap
 #' @export
-zap <- function(.tbl, ..., .ptype = list()) {
+rap <- function(.tbl, ..., .ptype = list()) {
   c(lambda, mapper, name) %<-% prepare_wap(.tbl, ..., .ptype = .ptype, .named = TRUE)
 
   if (is_grouped_df(.tbl) && name %in% group_vars(.tbl)) {
-    abort("cannot zap a grouping variable")
+    abort("cannot rap() a grouping variable")
   }
 
   .tbl[[name]] <- mapper(seq_len(nrow(.tbl)), lambda)
   .tbl
 }
 
-#' @rdname zap
+#' @rdname rap
 #' @export
-zap_dbl <- function(...) zap(..., .ptype = double())
+rap_dbl <- function(...) rap(..., .ptype = double())
 
-#' @rdname zap
+#' @rdname rap
 #' @export
-zap_lgl <- function(...) zap(..., .ptype = logical())
+rap_lgl <- function(...) rap(..., .ptype = logical())
 
-#' @rdname zap
+#' @rdname rap
 #' @export
-zap_int <- function(...) zap(..., .ptype = integer())
+rap_int <- function(...) rap(..., .ptype = integer())
 
-#' @rdname zap
+#' @rdname rap
 #' @export
-zap_chr <- function(...) zap(..., .ptype = character())
+rap_chr <- function(...) rap(..., .ptype = character())
 
-#' @rdname zap
+#' @rdname rap
 #' @export
-zap_raw <- function(...) zap(..., .ptype = raw())
+rap_raw <- function(...) rap(..., .ptype = raw())
 
-#' @rdname zap
+#' @rdname rap
 #' @export
-zap_dfr <- function(...) zap(..., .ptype = data.frame())
+rap_dfr <- function(...) rap(..., .ptype = data.frame())

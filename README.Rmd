@@ -12,39 +12,43 @@ knitr::opts_chunk$set(
   out.width = "100%"
 )
 ```
-# zap
+# rap
 
 [![Lifecycle Status](https://img.shields.io/badge/lifecycle-experimental-blue.svg)](https://www.tidyverse.org/lifecycle/)
-[![Travis build status](https://travis-ci.org/romainfrancois/zap.svg?branch=master)](https://travis-ci.org/romainfrancois/zap)
+[![Travis build status](https://travis-ci.org/romainfrancois/rap.svg?branch=master)](https://travis-ci.org/romainfrancois/rap)
 
-Experimenting with yet another way to do rowwise operations. It might never be a thing, 
-and I'm not yet sure this is `quo()`rrect. 
+![](https://media.giphy.com/media/l41Yy7rv1mVZNQCT6/giphy.gif)
 
-This offers `zap()` as an alternative to some versions of:
+Experimenting with yet another way to do rowwise operations. 
+
+## Installation
+
+You can install `rap` from gitub
+
+``` r
+# install.packages("devtools")
+detools::install_github("romainfrancois/rap")
+```
+
+## Why
+
+This offers `rap()` as an alternative to some versions of:
 
  - `rowwise()` + `do()`
  - `mutate()` + `pmap()`
  - maybe `purrrlyr` ?
  - probably other approaches
 
-`zap()` works with a lambda, similar to `purrr::map()` but instead of `.x`, `.y`, `..1`, `..2`, ...
+`rap()` works with a lambda, similar to `purrr::map()` but instead of `.x`, `.y`, `..1`, `..2`, ...
 the lambda can use the column names, which stand for a single element of the associated vector, in the 
 `[[` sense. 
 
-## Installation
 
-You can install `zap` from gitub
-
-``` r
-# install.packages("devtools")
-detools::install_github("romainfrancois/zap")
-```
-
-## Example
+## rap
 
 ```{r}
 library(tidyverse)
-library(zap)
+library(rap)
 
 tbl <- tibble(cyl = c(4, 6, 8), mpg = c(30, 25, 20)) 
 tbl
@@ -63,25 +67,25 @@ tbl %>%
   )
 ```
 
-`zap` attemps to simplify this by iterating over the columns simultaneously, and exposing 
+`rap` attempts to simplify this by iterating over the columns simultaneously, and exposing 
 them with their name: 
 
 ```{r}
 tbl %>% 
-  zap(x = ~filter(mtcars, cyl == !!cyl, mpg < !!mpg) )
+  rap(x = ~filter(mtcars, cyl == !!cyl, mpg < !!mpg) )
 ```
 
-In `purrr::` fashion, `zap()` has variants to force the type of output, e.g. `zap_int()`: 
+In `purrr::` fashion, `rap()` has variants to force the type of output, e.g. `rap_int()`: 
 
 ```{r}
 tbl %>% 
-  zap(x = ~filter(mtcars, cyl == !!cyl, mpg < !!mpg) ) %>% 
-  zap_int( n = ~nrow(x))
+  rap(x = ~filter(mtcars, cyl == !!cyl, mpg < !!mpg) ) %>% 
+  rap_int( n = ~nrow(x))
 ```
 
 ## wap
 
-`wap()` is the same but just returns the columns, `wap()` is `zap()` + `dplyr::pull()`
+`wap()` is the same but just returns the columns, `wap()` is `rap()` + `dplyr::pull()`
 
 ```{r}
 library(dplyr)

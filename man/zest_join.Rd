@@ -43,6 +43,6 @@ tbl \%>\%
 
 # similar to
 tbl \%>\%
-  zap(data = ~filter(mtcars, cyl == !!cyl & mpg < !!mpg))
+  rap(data = ~filter(mtcars, cyl == !!cyl & mpg < !!mpg))
 
 }

@@ -1,4 +1,4 @@
 library(testthat)
-library(zap)
+library(rap)
 
-test_check("zap")
+test_check("rap")

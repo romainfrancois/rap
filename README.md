@@ -1,49 +1,52 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# zap
+# rap
 
 [![Lifecycle
 Status](https://img.shields.io/badge/lifecycle-experimental-blue.svg)](https://www.tidyverse.org/lifecycle/)
 [![Travis build
-status](https://travis-ci.org/romainfrancois/zap.svg?branch=master)](https://travis-ci.org/romainfrancois/zap)
+status](https://travis-ci.org/romainfrancois/rap.svg?branch=master)](https://travis-ci.org/romainfrancois/rap)
 
-Experimenting with yet another way to do rowwise operations. It might
-never be a thing, and I’m not yet sure this is `quo()`rrect.
+![](https://media.giphy.com/media/l41Yy7rv1mVZNQCT6/giphy.gif)
 
-This offers `zap()` as an alternative to some versions of:
+Experimenting with yet another way to do rowwise operations.
+
+## Installation
+
+You can install `rap` from gitub
+
+``` r
+# install.packages("devtools")
+detools::install_github("romainfrancois/rap")
+```
+
+## Why
+
+This offers `rap()` as an alternative to some versions of:
 
   - `rowwise()` + `do()`
   - `mutate()` + `pmap()`
   - maybe `purrrlyr` ?
   - probably other approaches
 
-`zap()` works with a lambda, similar to `purrr::map()` but instead of
+`rap()` works with a lambda, similar to `purrr::map()` but instead of
 `.x`, `.y`, `..1`, `..2`, … the lambda can use the column names, which
 stand for a single element of the associated vector, in the `[[` sense.
 
-## Installation
-
-You can install `zap` from gitub
-
-``` r
-# install.packages("devtools")
-detools::install_github("romainfrancois/zap")
-```
-
-## Example
+## rap
 
 ``` r
 library(tidyverse)
-#> ── Attaching packages ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse 1.2.1 ──
+#> ── Attaching packages ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse 1.2.1 ──
 #> ✔ ggplot2 3.0.0.9000      ✔ purrr   0.2.5.9000 
 #> ✔ tibble  1.4.99.9005     ✔ dplyr   0.7.99.9000
 #> ✔ tidyr   0.8.2.9000      ✔ stringr 1.3.1      
 #> ✔ readr   1.1.1           ✔ forcats 0.3.0.9000
-#> ── Conflicts ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
+#> ── Conflicts ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
 #> ✖ dplyr::filter() masks stats::filter()
 #> ✖ dplyr::lag()    masks stats::lag()
-library(zap)
+library(rap)
 
 tbl <- tibble(cyl = c(4, 6, 8), mpg = c(30, 25, 20)) 
 tbl
@@ -76,12 +79,12 @@ tbl %>%
 #> 3     8    20 <data.frame [14 × 11]>
 ```
 
-`zap` attemps to simplify this by iterating over the columns
+`rap` attempts to simplify this by iterating over the columns
 simultaneously, and exposing them with their name:
 
 ``` r
 tbl %>% 
-  zap(x = ~filter(mtcars, cyl == !!cyl, mpg < !!mpg) )
+  rap(x = ~filter(mtcars, cyl == !!cyl, mpg < !!mpg) )
 #> # A tibble: 3 x 3
 #>     cyl   mpg x                     
 #>   <dbl> <dbl> <list>                
@@ -90,13 +93,13 @@ tbl %>%
 #> 3     8    20 <data.frame [14 × 11]>
 ```
 
-In `purrr::` fashion, `zap()` has variants to force the type of output,
-e.g. `zap_int()`:
+In `purrr::` fashion, `rap()` has variants to force the type of output,
+e.g. `rap_int()`:
 
 ``` r
 tbl %>% 
-  zap(x = ~filter(mtcars, cyl == !!cyl, mpg < !!mpg) ) %>% 
-  zap_int( n = ~nrow(x))
+  rap(x = ~filter(mtcars, cyl == !!cyl, mpg < !!mpg) ) %>% 
+  rap_int( n = ~nrow(x))
 #> # A tibble: 3 x 4
 #>     cyl   mpg x                          n
 #>   <dbl> <dbl> <list>                 <int>
@@ -107,7 +110,7 @@ tbl %>%
 
 ## wap
 
-`wap()` is the same but just returns the columns, `wap()` is `zap()` +
+`wap()` is the same but just returns the columns, `wap()` is `rap()` +
 `dplyr::pull()`
 
 ``` r
