@@ -28,7 +28,7 @@ You can install `rap` from gitub
 
 ``` r
 # install.packages("devtools")
-detools::install_github("romainfrancois/rap")
+devtools::install_github("romainfrancois/rap")
 ```
 
 ## Why
