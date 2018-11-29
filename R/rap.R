@@ -142,7 +142,7 @@ prepare_wap <- function(.tbl, .f, check = TRUE) {
 #'             The vector validates `vec_size() == nrow(.tbl)`. This is similar
 #'             to [purrr::pmap()]
 #'
-#'   - `nap()` returns *n*othing, and can be used for side effects, similar to [purrr:::pwalk()]
+#'   - `nap()` returns *n*othing, and can be used for side effects, similar to [purrr::pwalk()]
 #'
 #'   - `rap()` adds a column to `.tbl` per formula in `...`
 #'

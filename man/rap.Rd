@@ -44,7 +44,7 @@ observation.}
 \item \code{wap()} returns a vector of the type specified by the lhs of the formula.
 The vector validates \code{vec_size() == nrow(.tbl)}. This is similar
 to \code{\link[purrr:pmap]{purrr::pmap()}}
-\item \code{nap()} returns \emph{n}othing, and can be used for side effects, similar to \code{\link[purrr:::pwalk]{purrr::::pwalk()}}
+\item \code{nap()} returns \emph{n}othing, and can be used for side effects, similar to \code{\link[purrr:pwalk]{purrr::pwalk()}}
 \item \code{rap()} adds a column to \code{.tbl} per formula in \code{...}
 }
 }
