@@ -50,11 +50,11 @@ which stand for a single element of the associated vector, in the `[[` sense.
 library(tidyverse)
 library(rap)
 
-tbl <- tibble(cyl = c(4, 6, 8), mpg = c(30, 25, 20)) 
+tbl <- tibble(cyl_threshold = c(4, 6, 8), mpg_threshold = c(30, 25, 20)) 
 tbl
 
 tbl %>% 
-  rap(x = ~filter(mtcars, cyl == !!cyl, mpg < !!mpg) )
+  rap(x = ~filter(mtcars, cyl == !!cyl_threshold, mpg < !!mpg_threshold))
 ```
 
 If the lhs of the formula is empty, `rap()` adds a list column. Otherwise the lhs 
@@ -63,7 +63,7 @@ can be used to specify the type:
 ```{r}
 tbl %>% 
   rap(
-    x =           ~ filter(mtcars, cyl == !!cyl, mpg < !!mpg), 
+    x =           ~ filter(mtcars, cyl == !!cyl_threshold, mpg < !!mpg_threshold), 
     n = integer() ~ nrow(x)
   )
 ```
@@ -75,7 +75,7 @@ which has equivalent with `pmap`:
 tbl %>%
   mutate(
     x = pmap(
-      .l = list(cyl, mpg),
+      .l = list(cyl_threshold, mpg_threshold),
       function(cc, mm) filter(mtcars, cyl == cc, mpg < mm)
     ), 
     n = map_int(x, nrow)
@@ -104,7 +104,7 @@ starwars %>%
 
 # Specify type as data.frame() row binds them
 starwars %>% 
-  wap( data.frame() ~ data.frame(vehicles = length(vehicles), starships = length(starships)))
+  wap(data.frame() ~ data.frame(vehicles = length(vehicles), starships = length(starships)))
 ```
 
 
@@ -114,15 +114,12 @@ starwars %>%
 you control what goes in the nested column. `Z` is `N` but `r emo::ji("arrow_heading_down")`. 
 
 ```{r}
-tbl <- tibble(cyl = c(4, 6, 8), mpg = c(30, 25, 20)) 
+tbl <- tibble(cyl_threshold = c(4, 6, 8), mpg_threshold = c(30, 25, 20)) 
 tbl %>%
-  zest_join(mtcars, data = ~cyl == !!cyl & mpg < !!mpg)
+  zest_join(mtcars, data = ~cyl == !!cyl_threshold & mpg < !!mpg_threshold)
 ```
 
 In the rhs of the formula : 
 
   - `cyl` and `mpg` refer to columns of `mtcars`
-  - `!!cyl` and `!!mpg` refer to the current value from `tbl` 
-
-
-
+  - `!!cyl_threshold` and `!!mpg_threshold` refer to the current value from `tbl` 

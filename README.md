@@ -49,23 +49,23 @@ library(tidyverse)
 #> ✖ dplyr::lag()    masks stats::lag()
 library(rap)
 
-tbl <- tibble(cyl = c(4, 6, 8), mpg = c(30, 25, 20)) 
+tbl <- tibble(cyl_threshold = c(4, 6, 8), mpg_threshold = c(30, 25, 20)) 
 tbl
 #> # A tibble: 3 x 2
-#>     cyl   mpg
-#>   <dbl> <dbl>
-#> 1     4    30
-#> 2     6    25
-#> 3     8    20
+#>   cyl_threshold mpg_threshold
+#>           <dbl>         <dbl>
+#> 1             4            30
+#> 2             6            25
+#> 3             8            20
 
 tbl %>% 
-  rap(x = ~filter(mtcars, cyl == !!cyl, mpg < !!mpg) )
+  rap(x = ~filter(mtcars, cyl == !!cyl_threshold, mpg < !!mpg_threshold))
 #> # A tibble: 3 x 3
-#>     cyl   mpg x                     
-#>   <dbl> <dbl> <list>                
-#> 1     4    30 <data.frame [7 × 11]> 
-#> 2     6    25 <data.frame [7 × 11]> 
-#> 3     8    20 <data.frame [14 × 11]>
+#>   cyl_threshold mpg_threshold x                     
+#>           <dbl>         <dbl> <list>                
+#> 1             4            30 <data.frame [7 × 11]> 
+#> 2             6            25 <data.frame [7 × 11]> 
+#> 3             8            20 <data.frame [14 × 11]>
 ```
 
 If the lhs of the formula is empty, `rap()` adds a list column.
@@ -74,15 +74,15 @@ Otherwise the lhs can be used to specify the type:
 ``` r
 tbl %>% 
   rap(
-    x =           ~ filter(mtcars, cyl == !!cyl, mpg < !!mpg), 
+    x =           ~ filter(mtcars, cyl == !!cyl_threshold, mpg < !!mpg_threshold), 
     n = integer() ~ nrow(x)
   )
 #> # A tibble: 3 x 4
-#>     cyl   mpg x                          n
-#>   <dbl> <dbl> <list>                 <int>
-#> 1     4    30 <data.frame [7 × 11]>      7
-#> 2     6    25 <data.frame [7 × 11]>      7
-#> 3     8    20 <data.frame [14 × 11]>    14
+#>   cyl_threshold mpg_threshold x                          n
+#>           <dbl>         <dbl> <list>                 <int>
+#> 1             4            30 <data.frame [7 × 11]>      7
+#> 2             6            25 <data.frame [7 × 11]>      7
+#> 3             8            20 <data.frame [14 × 11]>    14
 ```
 
 this example is based on this
@@ -93,17 +93,17 @@ equivalent with `pmap`:
 tbl %>%
   mutate(
     x = pmap(
-      .l = list(cyl, mpg),
+      .l = list(cyl_threshold, mpg_threshold),
       function(cc, mm) filter(mtcars, cyl == cc, mpg < mm)
     ), 
     n = map_int(x, nrow)
   )
 #> # A tibble: 3 x 4
-#>     cyl   mpg x                          n
-#>   <dbl> <dbl> <list>                 <int>
-#> 1     4    30 <data.frame [7 × 11]>      7
-#> 2     6    25 <data.frame [7 × 11]>      7
-#> 3     8    20 <data.frame [14 × 11]>    14
+#>   cyl_threshold mpg_threshold x                          n
+#>           <dbl>         <dbl> <list>                 <int>
+#> 1             4            30 <data.frame [7 × 11]>      7
+#> 2             6            25 <data.frame [7 × 11]>      7
+#> 3             8            20 <data.frame [14 × 11]>    14
 ```
 
 ## wap
@@ -185,18 +185,18 @@ starwars %>%
 goes in the nested column. `Z` is `N` but ⤵️.
 
 ``` r
-tbl <- tibble(cyl = c(4, 6, 8), mpg = c(30, 25, 20)) 
+tbl <- tibble(cyl_threshold = c(4, 6, 8), mpg_threshold = c(30, 25, 20)) 
 tbl %>%
-  zest_join(mtcars, data = ~cyl == !!cyl & mpg < !!mpg)
+  zest_join(mtcars, data = ~cyl == !!cyl_threshold & mpg < !!mpg_threshold)
 #> # A tibble: 3 x 3
-#>     cyl   mpg data                  
-#>   <dbl> <dbl> <list>                
-#> 1     4    30 <data.frame [7 × 11]> 
-#> 2     6    25 <data.frame [7 × 11]> 
-#> 3     8    20 <data.frame [14 × 11]>
+#>   cyl_threshold mpg_threshold data                  
+#>           <dbl>         <dbl> <list>                
+#> 1             4            30 <data.frame [7 × 11]> 
+#> 2             6            25 <data.frame [7 × 11]> 
+#> 3             8            20 <data.frame [14 × 11]>
 ```
 
 In the rhs of the formula :
 
   - `cyl` and `mpg` refer to columns of `mtcars`
-  - `!!cyl` and `!!mpg` refer to the current value from `tbl`
+  - `!!cyl_threshold` and `!!mpg_threshold` refer to the current value from `tbl`
