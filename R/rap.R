@@ -179,6 +179,15 @@ prepare_wap <- function(.tbl, .f, check = TRUE) {
 #'      n = integer() ~ nrow(x)
 #'   )
 #'
+#' # rap is especially useful for iterating
+#' # over multiple models
+#' starwars %>%
+#'   nest_by(gender) %>%
+#'   rap(
+#'     model = ~lm(height ~ mass + birth_year, data = data),
+#'     perf  = double() ~ summary(model)$adj.r.squared
+#'   )
+#'
 #' @rdname rap
 #' @export
 wap <- function(.tbl, .f) {
