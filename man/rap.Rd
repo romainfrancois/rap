@@ -22,33 +22,31 @@ rap(.tbl, ...)
 
 \item{...}{named formulas
 
- The *lhs* of each formula indicates the type, in the [vctrs::vec_c()] sense.
+The \emph{lhs} of each formula indicates the type, in the \code{\link[vctrs:vec_c]{vctrs::vec_c()}} sense.
+\itemize{
+\item empty or \code{list()}: no check is performed on the results of
+the rhs expressionand a list is returned.
+\item \code{data.frame()}:  to indicate that the rhs should evaluate
+to a data frame of 1 row. The data frames don't need to be of a specific types
+and are are combined with \code{\link[vctrs:vec_rbind]{vctrs::vec_rbind()}}.
+\item A data frame of a specific type, e.g. \code{data.frame(x = integer(), y = double())}
+The rhs should evaluate to a data frame of that type with 1 row.
+\item Any other ptype that makes sense for \code{\link[vctrs:vec_c]{vctrs::vec_c()}}. Each result must
+validate \code{vctrs::vec_size(.) == 1L} and are combined with
+\code{vctrs::vec_c(!!!, .ptype = .ptype)}
+}
 
- - empty or `list()`: no check is performed on the results of
- the rhs expressionand a list is returned.
-
- - `data.frame()`:  to indicate that the rhs should evaluate
- to a data frame of 1 row. The data frames don't need to be of a specific types
- and are are combined with [vctrs::vec_rbind()].
-
- - A data frame of a specific type, e.g. `data.frame(x = integer(), y = double())`
- The rhs should evaluate to a data frame of that type with 1 row.
-
- - Any other ptype that makes sense for [vctrs::vec_c()]. Each result must
- validate `vctrs::vec_size(.) == 1L` and are combined with
- `vctrs::vec_c(!!!, .ptype = .ptype)`
-
- The rhs of each formula uses columns of `.tbl`, and each stands for a single
- observation.}
+The rhs of each formula uses columns of \code{.tbl}, and each stands for a single
+observation.}
 }
 \value{
-- `wap()` returns a vector of the type specified by the lhs of the formula.
-            The vector validates `vec_size() == nrow(.tbl)`. This is similar
-            to [purrr::pmap()]
-
-  - `nap()` returns *n*othing, and can be used for side effects, similar to [purrr:::pwalk()]
-
-  - `rap()` adds a column to `.tbl` per formula in `...`
+\itemize{
+\item \code{wap()} returns a vector of the type specified by the lhs of the formula.
+The vector validates \code{vec_size() == nrow(.tbl)}. This is similar
+to \code{\link[purrr:pmap]{purrr::pmap()}}
+\item \code{nap()} returns \emph{n}othing, and can be used for side effects, similar to \code{\link[purrr:::pwalk]{purrr::::pwalk()}}
+\item \code{rap()} adds a column to \code{.tbl} per formula in \code{...}
+}
 }
 \description{
 Map over columns of a data frame simultaneously
