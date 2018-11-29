@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# rap
+# rap <img src="man/figures/logo.png" align="right" />
 
 [![Lifecycle
 Status](https://img.shields.io/badge/lifecycle-experimental-blue.svg)](https://www.tidyverse.org/lifecycle/)
@@ -39,12 +39,12 @@ vector, in the `[[` sense.
 
 ``` r
 library(tidyverse)
-#> ── Attaching packages ───────────────────────────────────────────────────────────────────────────────── tidyverse 1.2.1 ──
+#> ── Attaching packages ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse 1.2.1 ──
 #> ✔ ggplot2 3.0.0.9000      ✔ purrr   0.2.5.9000 
 #> ✔ tibble  1.4.99.9005     ✔ dplyr   0.7.99.9000
 #> ✔ tidyr   0.8.2.9000      ✔ stringr 1.3.1      
 #> ✔ readr   1.1.1           ✔ forcats 0.3.0.9000
-#> ── Conflicts ──────────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
+#> ── Conflicts ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
 #> ✖ dplyr::filter() masks stats::filter()
 #> ✖ dplyr::lag()    masks stats::lag()
 library(rap)

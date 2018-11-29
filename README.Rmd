@@ -12,7 +12,8 @@ knitr::opts_chunk$set(
   out.width = "100%"
 )
 ```
-# rap
+
+# rap <img src="man/figures/logo.png" align="right" />
 
 [![Lifecycle Status](https://img.shields.io/badge/lifecycle-experimental-blue.svg)](https://www.tidyverse.org/lifecycle/)
 [![Travis build status](https://travis-ci.org/romainfrancois/rap.svg?branch=master)](https://travis-ci.org/romainfrancois/rap)
@@ -43,7 +44,7 @@ This offers `rap()` as an alternative to some versions of:
 but instead of `.x`, `.y`, `..1`, `..2`, ...the lambda can use the column names, 
 which stand for a single element of the associated vector, in the `[[` sense. 
 
-## rap
+## rap 
 
 ```{r}
 library(tidyverse)
