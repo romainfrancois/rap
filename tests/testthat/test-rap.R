@@ -62,3 +62,28 @@ test_that("rap() only accepts results with 1 observation when type is not list()
   expect_error(rap(iris, x = raw()        ~ as.raw(0:255)))
   expect_error(rap(iris, x = data.frame() ~mtcars))
 })
+
+test_that("unquoting is done locally, and is equivalent to using the `..data` pronoun", {
+  tbl <- tibble::tibble(cyl = c(4, 6, 8), mpg = c(30, 25, 20))
+
+  res1 <- tbl %>%
+    rap(x = ~dplyr::filter(mtcars, cyl == !!cyl, mpg < !!mpg) )
+
+  res2 <- tbl %>%
+    rap(x = ~dplyr::filter(mtcars, cyl == ..data$cyl, mpg < ..data$mpg) )
+
+  expect_identical(res1, res2)
+})
+
+test_that("..env is the formula environment", {
+  tbl <- tibble::tibble(cyl = c(4, 6, 8), mpg = c(30, 25, 20))
+
+  mpg <- 20
+  res1 <- tbl %>%
+    rap(x = ~dplyr::filter(mtcars, cyl == !!cyl, mpg < ..env$mpg) )
+
+  res2 <- tbl %>%
+    rap(x = ~dplyr::filter(mtcars, cyl == ..data$cyl, mpg < 20) )
+
+  expect_identical(res1, res2)
+})

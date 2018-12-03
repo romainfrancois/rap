@@ -1,4 +1,4 @@
-#' @importFrom rlang set_names list2 quos expr new_function eval_tidy missing_arg caller_env is_formula f_rhs abort is_vector dots_n f_env env sym f_lhs
+#' @importFrom rlang set_names list2 quos expr new_function eval_tidy missing_arg caller_env is_formula f_rhs abort is_vector dots_n f_env env sym f_lhs env_parent
 #' @importFrom assertthat assert_that
 #' @importFrom purrr map map_dbl map_lgl map_int map_chr map_dfr map_raw iwalk
 #' @importFrom tibble add_column
@@ -32,7 +32,7 @@ observation_bare_vector <- function(.) {
   expr( .subset2(!!., `.::index::.`))
 }
 
-rapper_args <- function(.tbl) {
+rapper_args <- function(.tbl, env) {
   args <- set_names(
     map(.tbl, ~ if (is.data.frame(.) ){
       observation_data_frame(.)
@@ -45,7 +45,7 @@ rapper_args <- function(.tbl) {
     }),
     tbl_vars(.tbl)
   )
-  list2(`.::index::.` = missing_arg(), !!!args )
+  list2(`.::index::.` = missing_arg(), !!!args, ..data = quote(environment()), ..env = env )
 }
 
 map_for_type <- function(.ptype, combine = vec_c) {
@@ -99,7 +99,8 @@ prepare_wap <- function(.tbl, .f, check = TRUE) {
   body <- expr({
     rlang::eval_tidy(!!(f_rhs(.f)))
   })
-  lambda <- new_function(rapper_args(.tbl), body, env = f_env(.f))
+  env <- f_env(.f)
+  lambda <- new_function(rapper_args(.tbl, env = env_parent(env)), body, env = env)
   attr(lambda, "class") <- "rap_lamdda"
 
   # the mapper

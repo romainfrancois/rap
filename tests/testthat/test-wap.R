@@ -35,3 +35,4 @@ test_that("wap() only accepts results with 1 observation when .ptype is specifie
   expect_error(wap(iris, raw()        ~ as.raw(0:255)))
   expect_error(wap(iris, data.frame() ~ mtcars))
 })
+
