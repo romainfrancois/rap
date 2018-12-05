@@ -87,9 +87,9 @@ tbl \%>\%
 # rap is especially useful for iterating
 # over multiple models
 starwars \%>\%
-  nest_by(gender) \%>\%
+  group_nest(gender) \%>\%
   rap(
-    model = ~lm(height ~ mass + birth_year, data = data),
+    model =          ~ lm(height ~ mass + birth_year, data = data),
     perf  = double() ~ summary(model)$adj.r.squared
   )
 
