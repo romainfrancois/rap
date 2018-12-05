@@ -13,20 +13,22 @@ zest_join(x, y, ...)
 
 \item{...}{named predicate formulas
 
-The rhs of the formulas is used y [dplyr::filter()] on `y` for each row of `x`.
-
-  - Literal column names refer to columns of `y`. Alternatively you can use `.data$`.
-
-  - To use the current value for a column of `x` you can use unquoting, e.g. `!!cyl`}
+The rhs of the formulas is used y \code{\link[dplyr:filter]{dplyr::filter()}} on \code{y} for each row of \code{x}.
+\itemize{
+\item Literal column names refer to columns of \code{y}. Alternatively you can use \code{.data$}.
+\item To use the current value for a column of \code{x} you can use unquoting, e.g. \code{!!cyl}
+}}
 }
 \value{
-a tibble that contains all columns and rows of `x`, plus an additional list column per formula:
-  - its name is given by the name of the formula
-  - each element of the column is a tibble
-  - each of the tibbles is a subset of `y` according to the rhs of the formula
+a tibble that contains all columns and rows of \code{x}, plus an additional list column per formula:
+\itemize{
+\item its name is given by the name of the formula
+\item each element of the column is a tibble
+\item each of the tibbles is a subset of \code{y} according to the rhs of the formula
+}
 }
 \description{
-a zest join is similar to a [dplyr::nest_join()] but the rows of `y` that are
+a zest join is similar to a \code{\link[dplyr:nest_join]{dplyr::nest_join()}} but the rows of \code{y} that are
 included in the list column are controlled by a predicate.
 }
 \examples{
