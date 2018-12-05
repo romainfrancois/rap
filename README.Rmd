@@ -116,7 +116,7 @@ you control what goes in the nested column. `Z` is `N` but `r emo::ji("arrow_hea
 ```{r}
 tbl <- tibble(cyl_threshold = c(4, 6, 8), mpg_threshold = c(30, 25, 20)) 
 tbl %>%
-  zest_join(mtcars, data = ~cyl == !!cyl_threshold & mpg < !!mpg_threshold)
+  zest_join(mtcars, data = ~cyl == cyl_threshold & mpg < mpg_threshold)
 ```
 
 In the rhs of the formula : 

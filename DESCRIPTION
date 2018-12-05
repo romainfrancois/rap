@@ -4,7 +4,7 @@ Version: 0.0.0.9000
 Authors@R: c(
       person("Romain", "François", email = "romain@purrple.cat", role = c("aut", "cre")), 
       person("Davis", "Vaughan", role = c("ctb", "rev")), 
-      person(“Suthira”, “Owlarn”, role = c("ctb", "rev")), 
+      person("Suthira", "Owlarn", role = c("ctb", "rev")), 
       person("Thomas Lin", "Pedersen", role = c("art"))
     )
 Description: rowwise operations on a data frame.
