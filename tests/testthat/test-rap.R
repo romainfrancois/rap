@@ -9,13 +9,6 @@ test_that("rap() with no lhs a list column", {
   expect_equal(unlist(res[["x"]]), iris$Sepal.Length * 2)
 })
 
-test_that("rap() formulas must be named", {
-  expect_error(
-    rap(iris, ~Sepal.Length),
-    "`...` should be a named list of formulas"
-  )
-})
-
 test_that("rap() respects lhs of formula for purrr variants", {
   res <- iris %>%
     rap(
