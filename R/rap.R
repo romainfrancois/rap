@@ -143,8 +143,6 @@ prepare_wap <- function(.tbl, .f, check = TRUE) {
 #'             The vector validates `vec_size() == nrow(.tbl)`. This is similar
 #'             to [purrr::pmap()]
 #'
-#'   - `nap()` returns *n*othing, and can be used for side effects, similar to [purrr::pwalk()]
-#'
 #'   - `rap()` adds a column to `.tbl` per formula in `...`
 #'
 #' @examples
@@ -198,13 +196,6 @@ wap <- function(.tbl, .f) {
 
 #' @rdname rap
 #' @export
-nap <- function(.tbl, .f) {
-  wap(.tbl, .f)
-  invisible(.tbl)
-}
-
-#' @rdname rap
-#' @export
 lap <- function(.tbl, .f) {
   prepare_wap(.tbl, .f, check = TRUE)$lambda
 }
@@ -218,10 +209,11 @@ print.rap_lamdda <- function(x, ...) {
 #' @rdname rap
 #' @export
 rap <- function(.tbl, ...) {
-
   formulas <- list(...)
+  if(is.null(formulas)) {
+    names(formulas) <- rep("", length(formulas))
+  }
   assert_that(
-    !is.null(names(formulas)),
     all(map_lgl(formulas, is_formula)),
     msg = "`...` should be a named list of formulas"
   )
@@ -233,7 +225,11 @@ rap <- function(.tbl, ...) {
       abort("cannot rap() a grouping variable")
     }
 
-    .tbl[[.y]] <<- mapper(seq_len(nrow(.tbl)), lambda)
+    res <- mapper(seq_len(nrow(.tbl)), lambda)
+    if (.y != "") {
+      .tbl[[.y]] <<- res
+    }
+
   })
   .tbl
 }

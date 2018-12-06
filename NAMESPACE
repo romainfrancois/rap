@@ -3,7 +3,6 @@
 S3method(print,rap_lamdda)
 export("%>%")
 export(lap)
-export(nap)
 export(rap)
 export(wap)
 export(zest_join)
