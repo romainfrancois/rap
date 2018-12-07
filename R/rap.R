@@ -101,7 +101,7 @@ prepare_wap <- function(.tbl, .f, check = TRUE) {
   })
   env <- f_env(.f)
   lambda <- new_function(rapper_args(.tbl, env = env_parent(env)), body, env = env)
-  attr(lambda, "class") <- "rap_lamdda"
+  attr(lambda, "class") <- "rap_lambda"
 
   # the mapper
   .map <- map_for(.ptype)
@@ -201,7 +201,7 @@ lap <- function(.tbl, .f) {
 }
 
 #' @export
-print.rap_lamdda <- function(x, ...) {
+print.rap_lambda <- function(x, ...) {
   # TODO
   NextMethod()
 }
