@@ -2,14 +2,11 @@
 % Please edit documentation in R/rap.R
 \name{wap}
 \alias{wap}
-\alias{nap}
 \alias{lap}
 \alias{rap}
 \title{Map over columns of a data frame simultaneously}
 \usage{
 wap(.tbl, .f)
-
-nap(.tbl, .f)
 
 lap(.tbl, .f)
 
@@ -20,12 +17,15 @@ rap(.tbl, ...)
 
 \item{.f}{a single formula}
 
-\item{...}{named formulas
+\item{...}{formulas
+
+The \emph{rhs} of each formula uses columns of \code{.tbl}, and each stands for a single
+observation.
 
 The \emph{lhs} of each formula indicates the type, in the \code{\link[vctrs:vec_c]{vctrs::vec_c()}} sense.
 \itemize{
 \item empty or \code{list()}: no check is performed on the results of
-the rhs expressionand a list is returned.
+the rhs expression and a list is returned.
 \item \code{data.frame()}:  to indicate that the rhs should evaluate
 to a data frame of 1 row. The data frames don't need to be of a specific types
 and are are combined with \code{\link[vctrs:vec_rbind]{vctrs::vec_rbind()}}.
@@ -36,15 +36,14 @@ validate \code{vctrs::vec_size(.) == 1L} and are combined with
 \code{vctrs::vec_c(!!!, .ptype = .ptype)}
 }
 
-The rhs of each formula uses columns of \code{.tbl}, and each stands for a single
-observation.}
+In \code{rap()} if the formula is named, the result becomes a new column of the
+\code{tbl}, otherwise the formula is only used for side effects.}
 }
 \value{
 \itemize{
 \item \code{wap()} returns a vector of the type specified by the lhs of the formula.
 The vector validates \code{vec_size() == nrow(.tbl)}. This is similar
 to \code{\link[purrr:pmap]{purrr::pmap()}}
-\item \code{nap()} returns \emph{n}othing, and can be used for side effects, similar to \code{\link[purrr:pwalk]{purrr::pwalk()}}
 \item \code{rap()} adds a column to \code{.tbl} per formula in \code{...}
 }
 }
@@ -57,26 +56,26 @@ library(purrr)
 library(dplyr)
 library(tibble)
 
-tbl <- tibble(cyl = c(4, 6, 8), mpg = c(30, 25, 20))
+tbl <- tibble(cyl_threshold = c(4, 6, 8), mpg_threshold = c(30, 25, 20))
 
+# ----- wap
 # returns a list of 3 elements
 tbl \%>\%
-  wap(~ filter(mtcars, cyl == !!cyl, mpg < !!mpg))
+  wap(       ~ filter(mtcars, cyl == cyl_threshold, mpg < mpg_threshold))
 
-# same
+# same, i.e. list() is equivalent to empty
 tbl \%>\%
-  wap(list() ~ filter(mtcars, cyl == !!cyl, mpg < !!mpg))
+  wap(list() ~ filter(mtcars, cyl == cyl_threshold, mpg < mpg_threshold))
 
 # can specify the output type with the formula lhs
 tbl \%>\%
-  wap(integer() ~ nrow(filter(mtcars, cyl == !!cyl, mpg < !!mpg)))
+  wap(integer() ~ nrow(filter(mtcars, cyl == cyl_threshold, mpg < mpg_threshold)))
 
 # to make data frames
 starwars \%>\%
-  wap( data.frame() ~
-    data.frame(species = length(species), films = length(films))
-  )
+  wap(data.frame() ~ data.frame(species = length(species), films = length(films)))
 
+# ----- rap
 # rap adds columns
 tbl \%>\%
   rap(
@@ -84,8 +83,7 @@ tbl \%>\%
      n = integer() ~ nrow(x)
   )
 
-# rap is especially useful for iterating
-# over multiple models
+# rap is especially useful for iterating over multiple models
 starwars \%>\%
   group_nest(gender) \%>\%
   rap(

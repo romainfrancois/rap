@@ -101,15 +101,14 @@ prepare_wap <- function(.tbl, .f, check = TRUE) {
   })
   env <- f_env(.f)
   lambda <- new_function(rapper_args(.tbl, env = env_parent(env)), body, env = env)
-  attr(lambda, "class") <- "rap_lamdda"
+  attr(lambda, "class") <- "rap_lambda"
 
   # the mapper
   .map <- map_for(.ptype)
 
   list(
     lambda = lambda,
-    mapper = .map,
-    type   = .ptype
+    mapper = .map
   )
 }
 
@@ -117,12 +116,15 @@ prepare_wap <- function(.tbl, .f, check = TRUE) {
 #'
 #' @param .tbl A data frame
 #' @param .f a single formula
-#' @param ... named formulas
+#' @param ... formulas
+#'
+#'  The *rhs* of each formula uses columns of `.tbl`, and each stands for a single
+#'  observation.
 #'
 #'  The *lhs* of each formula indicates the type, in the [vctrs::vec_c()] sense.
 #'
 #'  - empty or `list()`: no check is performed on the results of
-#'  the rhs expressionand a list is returned.
+#'  the rhs expression and a list is returned.
 #'
 #'  - `data.frame()`:  to indicate that the rhs should evaluate
 #'  to a data frame of 1 row. The data frames don't need to be of a specific types
@@ -135,15 +137,13 @@ prepare_wap <- function(.tbl, .f, check = TRUE) {
 #'  validate `vctrs::vec_size(.) == 1L` and are combined with
 #'  `vctrs::vec_c(!!!, .ptype = .ptype)`
 #'
-#'  The rhs of each formula uses columns of `.tbl`, and each stands for a single
-#'  observation.
+#'  In `rap()` if the formula is named, the result becomes a new column of the
+#'  `tbl`, otherwise the formula is only used for side effects.
 #'
 #' @return
 #'   - `wap()` returns a vector of the type specified by the lhs of the formula.
 #'             The vector validates `vec_size() == nrow(.tbl)`. This is similar
 #'             to [purrr::pmap()]
-#'
-#'   - `nap()` returns *n*othing, and can be used for side effects, similar to [purrr::pwalk()]
 #'
 #'   - `rap()` adds a column to `.tbl` per formula in `...`
 #'
@@ -153,26 +153,26 @@ prepare_wap <- function(.tbl, .f, check = TRUE) {
 #' library(dplyr)
 #' library(tibble)
 #'
-#' tbl <- tibble(cyl = c(4, 6, 8), mpg = c(30, 25, 20))
+#' tbl <- tibble(cyl_threshold = c(4, 6, 8), mpg_threshold = c(30, 25, 20))
 #'
+#' # ----- wap
 #' # returns a list of 3 elements
 #' tbl %>%
-#'   wap(~ filter(mtcars, cyl == !!cyl, mpg < !!mpg))
+#'   wap(       ~ filter(mtcars, cyl == cyl_threshold, mpg < mpg_threshold))
 #'
-#' # same
+#' # same, i.e. list() is equivalent to empty
 #' tbl %>%
-#'   wap(list() ~ filter(mtcars, cyl == !!cyl, mpg < !!mpg))
+#'   wap(list() ~ filter(mtcars, cyl == cyl_threshold, mpg < mpg_threshold))
 #'
 #' # can specify the output type with the formula lhs
 #' tbl %>%
-#'   wap(integer() ~ nrow(filter(mtcars, cyl == !!cyl, mpg < !!mpg)))
+#'   wap(integer() ~ nrow(filter(mtcars, cyl == cyl_threshold, mpg < mpg_threshold)))
 #'
 #' # to make data frames
 #' starwars %>%
-#'   wap( data.frame() ~
-#'     data.frame(species = length(species), films = length(films))
-#'   )
+#'   wap(data.frame() ~ data.frame(species = length(species), films = length(films)))
 #'
+#' # ----- rap
 #' # rap adds columns
 #' tbl %>%
 #'   rap(
@@ -180,8 +180,7 @@ prepare_wap <- function(.tbl, .f, check = TRUE) {
 #'      n = integer() ~ nrow(x)
 #'   )
 #'
-#' # rap is especially useful for iterating
-#' # over multiple models
+#' # rap is especially useful for iterating over multiple models
 #' starwars %>%
 #'   group_nest(gender) %>%
 #'   rap(
@@ -192,15 +191,8 @@ prepare_wap <- function(.tbl, .f, check = TRUE) {
 #' @rdname rap
 #' @export
 wap <- function(.tbl, .f) {
-  c(lambda, mapper, .) %<-% prepare_wap(.tbl, .f = .f, check = TRUE)
+  c(lambda, mapper) %<-% prepare_wap(.tbl, .f = .f, check = TRUE)
   mapper(seq_len(nrow(.tbl)), lambda)
-}
-
-#' @rdname rap
-#' @export
-nap <- function(.tbl, .f) {
-  wap(.tbl, .f)
-  invisible(.tbl)
 }
 
 #' @rdname rap
@@ -210,7 +202,7 @@ lap <- function(.tbl, .f) {
 }
 
 #' @export
-print.rap_lamdda <- function(x, ...) {
+print.rap_lambda <- function(x, ...) {
   # TODO
   NextMethod()
 }
@@ -218,22 +210,27 @@ print.rap_lamdda <- function(x, ...) {
 #' @rdname rap
 #' @export
 rap <- function(.tbl, ...) {
-
   formulas <- list(...)
+  if(is.null(formulas)) {
+    names(formulas) <- rep("", length(formulas))
+  }
   assert_that(
-    !is.null(names(formulas)),
     all(map_lgl(formulas, is_formula)),
     msg = "`...` should be a named list of formulas"
   )
 
   iwalk(formulas, ~{
-    c(lambda, mapper, .) %<-% prepare_wap(.tbl, .x, check = FALSE)
+    c(lambda, mapper) %<-% prepare_wap(.tbl, .x, check = FALSE)
 
     if (is_grouped_df(.tbl) && .y %in% group_vars(.tbl)) {
       abort("cannot rap() a grouping variable")
     }
 
-    .tbl[[.y]] <<- mapper(seq_len(nrow(.tbl)), lambda)
+    res <- mapper(seq_len(nrow(.tbl)), lambda)
+    if (.y != "") {
+      .tbl[[.y]] <<- res
+    }
+
   })
   .tbl
 }
