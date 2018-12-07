@@ -108,8 +108,7 @@ prepare_wap <- function(.tbl, .f, check = TRUE) {
 
   list(
     lambda = lambda,
-    mapper = .map,
-    type   = .ptype
+    mapper = .map
   )
 }
 
@@ -190,7 +189,7 @@ prepare_wap <- function(.tbl, .f, check = TRUE) {
 #' @rdname rap
 #' @export
 wap <- function(.tbl, .f) {
-  c(lambda, mapper, .) %<-% prepare_wap(.tbl, .f = .f, check = TRUE)
+  c(lambda, mapper) %<-% prepare_wap(.tbl, .f = .f, check = TRUE)
   mapper(seq_len(nrow(.tbl)), lambda)
 }
 
@@ -219,7 +218,7 @@ rap <- function(.tbl, ...) {
   )
 
   iwalk(formulas, ~{
-    c(lambda, mapper, .) %<-% prepare_wap(.tbl, .x, check = FALSE)
+    c(lambda, mapper) %<-% prepare_wap(.tbl, .x, check = FALSE)
 
     if (is_grouped_df(.tbl) && .y %in% group_vars(.tbl)) {
       abort("cannot rap() a grouping variable")

@@ -56,7 +56,7 @@ zest_join <- function(x, y, ...) {
   )
 
   iwalk(formulas, ~{
-    c(lambda, mapper, .) %<-% prepare_wap(x, .x, check = FALSE)
+    c(lambda, mapper) %<-% prepare_wap(x, .x, check = FALSE)
 
     if (.y %in% tbl_vars(x)) {
       abort("cannot zest_join() a column with the same name as a column of x")
