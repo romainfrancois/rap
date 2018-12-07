@@ -172,11 +172,10 @@ prepare_wap <- function(.tbl, .f, check = TRUE) {
 #' starwars %>%
 #'   wap(data.frame() ~ data.frame(species = length(species), films = length(films)))
 #'
-#' # ----- rap
-#' # rap adds columns
+#' # ----- rap: add columns
 #' tbl %>%
 #'   rap(
-#'      x =           ~ filter(mtcars, cyl == !!cyl, mpg < !!mpg),
+#'      x =           ~ filter(mtcars, cyl == cyl_threshold, mpg < mpg_threshold),
 #'      n = integer() ~ nrow(x)
 #'   )
 #'
