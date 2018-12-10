@@ -14,7 +14,7 @@ Encoding: UTF-8
 LazyData: true
 Imports: 
     assertthat,
-    rlang,
+    rlang (>= 0.3.0.9000),
     purrr,
     tibble,
     dplyr,
@@ -27,5 +27,6 @@ RoxygenNote: 6.1.1
 Remotes: 
     tidyverse/dplyr, 
     tidyverse/purrr
+    r-lib/rlang
 Suggests: 
     testthat
