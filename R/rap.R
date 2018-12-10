@@ -1,4 +1,4 @@
-#' @importFrom rlang set_names list2 quos expr new_function eval_tidy missing_arg caller_env is_formula f_rhs abort is_vector dots_n f_env env sym f_lhs env_parent expr_deparse
+#' @importFrom rlang set_names list2 quos expr new_function eval_tidy missing_arg caller_env is_formula f_rhs abort is_vector dots_n f_env env sym f_lhs env_parent expr_print
 #' @importFrom assertthat assert_that
 #' @importFrom purrr map map_dbl map_lgl map_int map_chr map_dfr map_raw iwalk
 #' @importFrom tibble add_column
@@ -202,16 +202,7 @@ lap <- function(.tbl, .f) {
 
 #' @export
 print.rap_lambda <- function(x, ...) {
-  formals <- formals(x)
-
-  lines <- paste(
-    "function(\n",
-    paste("  ", names(formals), ifelse(map_lgl(formals, ~identical(., missing_arg())), "", " = "), map_chr(formals, expr_deparse), sep = " ", collapse = ", \n"),
-    "\n)",
-    paste(expr_deparse(body(x)), collapse = "\n"),
-    ""
-  )
-  writeLines(lines)
+  expr_print(x)
   invisible(x)
 }
 
