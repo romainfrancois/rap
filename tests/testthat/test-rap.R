@@ -80,3 +80,12 @@ test_that("..env is the formula environment", {
 
   expect_identical(res1, res2)
 })
+
+test_that("rap can splice", {
+  tbl <- tibble(
+    params = list(list(from = 1, to = 2), list(from = 1, to = 10))
+  ) %>%
+    rap(y = ~ seq(!!!params))
+
+  expect_equal(tbl$y, list(1:2, 1:10))
+})

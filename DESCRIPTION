@@ -14,7 +14,7 @@ Encoding: UTF-8
 LazyData: true
 Imports: 
     assertthat,
-    rlang (>= 0.3.0.9000),
+    rlang (>= 0.3.0.9001),
     purrr,
     tibble,
     dplyr,
