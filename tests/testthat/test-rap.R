@@ -82,7 +82,7 @@ test_that("..env is the formula environment", {
 })
 
 test_that("rap can splice", {
-  tbl <- tibble(
+  tbl <- tibble::tibble(
     params = list(list(from = 1, to = 2), list(from = 1, to = 10))
   ) %>%
     rap(y = ~ seq(!!!params))
