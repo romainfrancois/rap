@@ -87,7 +87,7 @@ map_for <- function(.ptype) {
 }
 
 # borrowed from https://github.com/r-lib/rlang/blob/148a166481ba19551afec649570efe2de53f0248/R/eval.R#L314
-bang <- function(expr) {
+value <- function(expr) {
   eval_bare(enexpr(expr), caller_env())
 }
 
@@ -105,10 +105,10 @@ prepare_wap <- function(.tbl, .f, check = TRUE) {
 
   # the lambda
   body <- expr({
-    bang(!!(f_rhs(.f)))
+    value(!!(f_rhs(.f)))
   })
   env <- f_env(.f)
-  lambda <- new_function(rapper_args(.tbl, env = env_parent(env)), body, env = env(bang = bang, env))
+  lambda <- new_function(rapper_args(.tbl, env = env_parent(env)), body, env = env(value = value, env))
   attr(lambda, "class") <- "rap_lambda"
 
   # the mapper
