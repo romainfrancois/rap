@@ -17,7 +17,7 @@ Imports:
     rlang (>= 0.3.1),
     purrr,
     tibble,
-    dplyr,
+    dplyr (>= 0.8.0),
     utils,
     vctrs,
     zeallot,
@@ -26,3 +26,5 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 6.1.1
 Suggests: 
     testthat
+Remotes:
+    tidyverse/dplyr
