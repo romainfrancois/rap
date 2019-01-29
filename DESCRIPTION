@@ -14,19 +14,17 @@ Encoding: UTF-8
 LazyData: true
 Imports: 
     assertthat,
-    rlang (>= 0.3.0.9001),
+    rlang (>= 0.3.1),
     purrr,
     tibble,
-    dplyr,
+    dplyr (>= 0.8.0),
     utils,
     vctrs,
     zeallot,
     magrittr
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 6.1.1
-Remotes: 
-    tidyverse/dplyr, 
-    tidyverse/purrr,
-    r-lib/rlang
 Suggests: 
     testthat
+Remotes:
+    tidyverse/dplyr
