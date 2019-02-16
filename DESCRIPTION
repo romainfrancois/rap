@@ -19,7 +19,7 @@ Imports:
     tibble (>= 2.0.1),
     dplyr (>= 0.8.0),
     utils,
-    vctrs (>= 0.1.0.9000),
+    vctrs (>= 0.1.0),
     zeallot (>= 0.1.0),
     magrittr (>= 1.5)
 Roxygen: list(markdown = TRUE)
