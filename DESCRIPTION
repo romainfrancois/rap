@@ -13,18 +13,16 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Imports: 
-    assertthat,
+    assertthat (>= 0.2.0),
     rlang (>= 0.3.1),
-    purrr,
-    tibble,
+    purrr (>= 0.3.0),
+    tibble (>= 2.0.1),
     dplyr (>= 0.8.0),
     utils,
-    vctrs,
-    zeallot,
-    magrittr
+    vctrs (>= 0.1.0.9000),
+    zeallot (>= 0.1.0),
+    magrittr (>= 1.5)
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 6.1.1
 Suggests: 
-    testthat
-Remotes:
-    tidyverse/dplyr
+    testthat (>= 2.0.1)
