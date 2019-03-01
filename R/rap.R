@@ -241,3 +241,46 @@ rap <- function(.tbl, ...) {
   })
   .tbl
 }
+
+#' pmap adapter
+#'
+#' `slam()` is typically used in [purrr::pmap()] calls to transform a
+#' formula that uses the raw names into a function. `slam()` is not quite
+#' [rap()].
+#'
+#' @param .tbl a tibble
+#' @param formula a formula that uses columns from the tibble
+#'
+#' @examples
+#' library(purrr)
+#' library(gapminder)
+#' library(dplyr)
+#'
+#' oceania <- gapminder::gapminder %>%
+#'   filter(continent == "Oceania") %>%
+#'   mutate(yr1952 = year - 1952) %>%
+#'   select(-continent) %>%
+#'   group_nest(country)
+#'
+#' # the idea of slam is to promote a formula expressed with the
+#' # column names into a pmap() ready function
+#' formula <- ~broom::tidy(stats::lm(lifeExp ~ yr1952, data))
+#' oceania %>%
+#'   pmap(slam(oceania, formula))
+#'
+#' # this is similar to e.g.
+#' oceania %>%
+#'   wap(~broom::tidy(stats::lm(lifeExp ~ yr1952, data)))
+#'
+#' @export
+slam <- function(.tbl, formula) {
+  args <- set_names(rep(list(missing_arg()), ncol(.tbl)), tbl_vars(.tbl))
+  body <- expr({
+    value(!!(f_rhs(formula)))
+  })
+  env <- env(f_env(formula), value = value)
+
+  new_function(args, body, env)
+}
+
+
