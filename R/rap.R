@@ -7,7 +7,7 @@
 #' @importFrom tibble add_column
 #' @importFrom dplyr is_grouped_df tbl_vars group_vars
 #' @importFrom utils globalVariables
-#' @importFrom vctrs vec_size vec_c vec_rbind
+#' @importFrom vctrs vec_size vec_c vec_rbind vec_cbind
 #' @importFrom zeallot %<-%
 #' @importFrom magrittr %>%
 is_bare_vector <- function(x) {
@@ -217,13 +217,13 @@ print.rap_lambda <- function(x, ...) {
 #' @rdname rap
 #' @export
 rap <- function(.tbl, ...) {
-  formulas <- list(...)
-  if(is.null(formulas)) {
+  formulas <- list2(...)
+  if(is.null(names(formulas))) {
     names(formulas) <- rep("", length(formulas))
   }
   assert_that(
     all(map_lgl(formulas, is_formula)),
-    msg = "`...` should be a named list of formulas"
+    msg = "`...` should be a list of formulas"
   )
 
   iwalk(formulas, ~{
@@ -235,7 +235,12 @@ rap <- function(.tbl, ...) {
 
     res <- mapper(seq_len(nrow(.tbl)), lambda)
     if (.y != "") {
+      # res is a column
       .tbl[[.y]] <<- res
+    } else {
+      # res is a list of one-row tibbles, so
+      # assemble them together and auto splice
+      .tbl <<- vec_cbind(.tbl, vec_rbind(!!!res))
     }
 
   })
